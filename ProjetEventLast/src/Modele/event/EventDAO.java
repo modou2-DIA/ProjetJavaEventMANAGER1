@@ -12,12 +12,14 @@ package Modele.Event;
 import java.sql.*;
  
 import java.util.ArrayList;
+
 import java.util.List;
+
 import java.util.stream.Collectors;
 
 public class EventDAO {
     private  List<AbstractEvent> events = new ArrayList<>();
-     private Connection connection;
+     private final Connection connection;
 
    
     // Constructeur principal
@@ -51,8 +53,10 @@ public class EventDAO {
                             resultSet.getTimestamp("date_event").toLocalDateTime(),
                             resultSet.getString("location"),
                             isRecurring
+                            
                              
                     );
+                    event.setIdCategory(resultSet.getInt("category_id"));
                 } else {
                     // Créer un événement normal
                     event = new BasicEvent_1(
@@ -63,6 +67,10 @@ public class EventDAO {
                             resultSet.getString("description"),
                             isRecurring
                     );
+                     
+                        event.setIdCategory(resultSet.getInt("category_id"));
+                    
+                    
                 }
                 events.add(event);
             }
@@ -74,15 +82,14 @@ public class EventDAO {
     // Ajouter un événement
     public void addEvent(AbstractEvent event) throws SQLException {
         // Ajouter dans la base de données
-        String sql = "INSERT INTO events (title, description, location, date_event, is_recurring, recurrence_period, end_date, recurrence_pattern) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO events (title, description, location, date_event, is_recurring, recurrence_period, end_date, recurrence_pattern,category_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)";
         try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, event.getTitle());
             statement.setString(2, event.getDescription());
             statement.setString(3, event.getLocation());
             statement.setString(4, event.getDates());
 
-            if (event instanceof RecurringEvent_1) {
-                RecurringEvent_1 recurringEvent = (RecurringEvent_1) event;
+            if (event instanceof RecurringEvent_1 recurringEvent) {
                 statement.setInt(5, 1);
                 statement.setString(6, recurringEvent.getRecurrence_period());
                 statement.setTimestamp(7, Timestamp.valueOf(recurringEvent.getEnd_date()));
@@ -93,7 +100,7 @@ public class EventDAO {
                 statement.setNull(7, Types.TIMESTAMP);
                 statement.setNull(8, Types.VARCHAR);
             }
-
+            statement.setInt(9,event.getIdCategory() );
             statement.executeUpdate();
 
             
@@ -109,8 +116,7 @@ public class EventDAO {
             statement.setString(3, event.getLocation());
             statement.setString(4, event.getDates());
 
-            if (event instanceof RecurringEvent_1) {
-                RecurringEvent_1 recurringEvent = (RecurringEvent_1) event;
+            if (event instanceof RecurringEvent_1 recurringEvent) {
                 statement.setInt(5, 1);
                 statement.setString(6, recurringEvent.getRecurrence_period());
                 statement.setTimestamp(7, Timestamp.valueOf(recurringEvent.getEnd_date()));
@@ -144,10 +150,17 @@ public class EventDAO {
                     .filter(e -> e.getId() != eventId)
                     .collect(Collectors.toList());
         }
+         
     }
 
     // Rechercher des événements par mot-clé
     public List<AbstractEvent> searchEvents(String keyword) {
+        if(keyword ==null)
+        {
+            return events.stream()
+                .sorted((e1, e2) -> e1.getDate().compareTo(e2.getDate()))
+                .collect(Collectors.toList());
+        }
         return events.stream()
                 .filter(e -> e.getTitle().toLowerCase().contains(keyword.toLowerCase())
                         || e.getDescription().toLowerCase().contains(keyword.toLowerCase()))
@@ -177,6 +190,17 @@ public class EventDAO {
             statement.executeUpdate();
         }
     }
+    
+     // Ajouter une catégorie
+    public void updateCategory(EventCtegory category) throws SQLException {
+        String sql = "UPDATE  categories set category_name=?, color_code=? where id=?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, category.getCategoryName());
+            statement.setString(2, category.getColorCode());
+            statement.setInt(3, category.getId());
+            statement.executeUpdate();
+        }
+    }
 
     // Récupérer toutes les catégories
     public List<EventCtegory> getAllCategories() throws SQLException {
@@ -195,17 +219,66 @@ public class EventDAO {
         return categories;
     }
     
-     // Supprimer un événement
-    public void deleteCategory(int catId) throws SQLException {
-        String sql = "DELETE FROM categories  WHERE id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, catId);
-            statement.executeUpdate();
+    // Récupérer une catégorie par nom
+public int getCategoryByName(String categoryName) throws SQLException {
+    String sql = "SELECT id FROM categories WHERE category_name = ?";
+    int id = -1; // Initialisation par une valeur par défaut
 
-           
-           
+    // Utiliser un PreparedStatement pour éviter les injections SQL
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        preparedStatement.setString(1, categoryName); // Remplacer le paramètre
+
+        try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            if (resultSet.next()) {
+                id = resultSet.getInt("id"); // Récupérer l'ID
+
+                // Vérifier s'il y a plus d'une correspondance
+                if (resultSet.next()) {
+                    throw new SQLException("Plus d'une catégorie trouvée avec le même nom !");
+                }
+            } else {
+                throw new SQLException("Aucune catégorie trouvée avec ce nom !");
+            }
         }
     }
+    return id;
+}
+
+public String getCategoryById(int id) throws SQLException {
+    String sql = "SELECT category_name FROM categories WHERE id = ?";
+    String  name = ""; // Initialisation par une valeur par défaut
+
+    // Utiliser un PreparedStatement pour éviter les injections SQL
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        preparedStatement.setInt(1, id); // Remplacer le paramètre
+
+        try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            if (resultSet.next()) {
+                name = resultSet.getString("category_name"); // Récupérer l'ID
+
+                
+            } else {
+                throw new SQLException("Aucune catégorie trouvée avec cet identifiant !");
+            }
+        }
+    }
+    return name;
+}
+
+     // Supprimer un événement
+   public boolean deleteCategory(int catId) throws SQLException {
+    String sql = "DELETE FROM categories WHERE id = ?";
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        statement.setInt(1, catId);
+        int rowsAffected = statement.executeUpdate();
+        return rowsAffected > 0; // Retourne true si une ligne a été supprimée
+    }
+}
+
+    
+    
+     
+
 
     
 }

@@ -4,14 +4,9 @@
  */
 package Vue.Event;
 
-/**
- *
- * @author DELL
- */
-
- 
 import Connection.DatabaseConnection;
 import Controller.Event.EventController;
+import Modele.Event.AbstractEvent;
 import Modele.Event.EventCtegory;
 import Modele.Event.EventDAO;
 import java.sql.Connection;
@@ -21,31 +16,55 @@ import java.util.logging.Logger;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+/**
+ *
+ * @author DELL
+ */
+public class ModifierEvenementView {
+   private final Stage stage;
+    private EventController controller;
+    private AbstractEvent event;
 
+   
 
-public class AjouterEvenementView {
+    public ModifierEvenementView(Stage stage, EventController controller, AbstractEvent event) {
+        this.stage = stage;
+        this.controller = controller;
+        this.event = event;
+    }
+    
+    
 
-    private final Stage stage;
-     private EventController controller;
-
-    public AjouterEvenementView(Stage stage,EventController controller) {
+    public ModifierEvenementView(Stage stage,EventController controller) {
         this.stage = stage;
         this.controller = controller;
     }
 
-    public void show() {
+    public void show(AbstractEvent evt) {
         // Titre
-        Label titleLabel = new Label("Ajouter un événement");
+        Label titleLabel = new Label("Modifier un événement");
         titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
 
         // Champs
         Label titleLabelfield = new Label("Titre de l'événement :");
         TextField titleField = new TextField();
         titleField.setPromptText("Titre de l'événement");
+        titleField.setText(evt.getTitle());
 
         Label dateLabel = new Label("Date de l'événement :");
         DatePicker datePicker = new DatePicker();
@@ -53,10 +72,13 @@ public class AjouterEvenementView {
         Label locationLabel = new Label("Lieu de l'événement :");
         TextField locationField = new TextField();
         locationField.setPromptText("Lieu de l'événement");
+        locationField.setText(evt.getLocation());
         
          Label descriptionLabel = new Label("Decription de l'événement :");
         TextArea descriptionArea = new TextArea();
         descriptionArea.setPromptText("Description...");
+        descriptionArea.setText(evt.getDescription());
+        
         
 
        
@@ -73,10 +95,10 @@ public class AjouterEvenementView {
         Label recurrencePatternLabel = new Label(" Modèle de récurrence:");
         TextField recurrencePatternField = new TextField();
         recurrencePatternField.setPromptText("ex: hebdomadaire");
+       
         
-       /* Label recurrencePeriodLabel = new Label(" Période de récurrence :");
-        TextField recurrencePeriodField = new TextField();
-        recurrencePeriodField.setPromptText("ex :P1D, P1W...");*/
+        
+        
         Label endDatePickerLabel = new Label(" Date de fin  :");
         DatePicker endDatePicker = new DatePicker();
         
@@ -84,7 +106,8 @@ public class AjouterEvenementView {
         grid_recuring.add(recurrencePatternField, 1, 0);
         grid_recuring.add(endDatePickerLabel, 0, 1);
         grid_recuring.add(endDatePicker, 1, 1);
-         
+        
+       
         isRecurringCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
              grid_recuring.setVisible(newVal);
              grid_recuring.setManaged(newVal);
@@ -109,25 +132,20 @@ public class AjouterEvenementView {
             alert.showAndWait();
         }
 
-        // Boutons
-        Button saveButton = new Button("Ajouter Événement");
-        saveButton.setOnAction(e -> {
+        Button saveButton = new Button("Modifier Évenement");
+        
+         saveButton.setOnAction(e -> {
             RadioButton selectedCategory = (RadioButton) categoryGroup.getSelectedToggle();
             if (selectedCategory != null) {
                 String category = selectedCategory.getText(); 
                 controller.handleUpdateOrAddEvent(titleField, datePicker, locationField, descriptionArea, isRecurringCheckBox,
-                        recurrencePatternField,  endDatePicker, category,null);
+                        recurrencePatternField,  endDatePicker, category,evt);
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "Veuillez sélectionner une catégorie !");
                 alert.showAndWait();
             }
         });
-        Button manageCategoriesButton = new Button("Gérer les catégories");
-
-        manageCategoriesButton.setOnAction(e -> {
-            // Ouvre la gestion des catégories
-            new GestionCategorieView(stage,controller).show();
-        });
+         
   
         GridPane grid = new GridPane();
         grid.setVgap(10);
@@ -142,12 +160,12 @@ public class AjouterEvenementView {
         grid.add(locationField, 1, 2);
         grid.add(descriptionLabel, 0, 3);
         grid.add(descriptionArea, 1, 3);
+        grid.add(grid_recuring,0,4);
+         
         
-        
-        
-         // Back button
+        // Back button
         Button backButton = new Button("Retour");
-         backButton.setOnAction(e -> {
+        backButton.setOnAction(e -> {
             try {
                 // Fermer l'écran actuel et ouvrir l'écran précédent
                 Connection con = DatabaseConnection.getConnection();
@@ -161,19 +179,21 @@ public class AjouterEvenementView {
              
         });
          // Top HBox for back button and title
-        HBox topLayout = new HBox(100, backButton, titleLabel);
+        HBox topLayout = new HBox(200, backButton, titleLabel);
         topLayout.setPadding(new Insets(10));
         topLayout.setAlignment(Pos.TOP_LEFT);
 
         // Scene setup
-        
-        VBox layout = new VBox(20, topLayout, grid,isRecurringCheckBox, grid_recuring, categoryBox, saveButton,manageCategoriesButton);
+         
+        VBox layout = new VBox(20, topLayout, grid,isRecurringCheckBox,  categoryBox, saveButton);
         layout.setAlignment(Pos.CENTER);
         Scene scene = new Scene(layout, 800, 600);
         stage.setScene(scene);
        stage.show();
+        
+        
          
+       
          
     }
 }
-

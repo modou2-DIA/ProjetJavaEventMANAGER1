@@ -11,18 +11,24 @@ package Modele.Event;
 
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
 public final class RecurringEvent_1 extends AbstractEvent {
-    private final String recurrencePattern;
+    private  String recurrencePattern;
     private  String recurrence_period ;
     private  LocalDateTime end_date ;
+
+    public RecurringEvent_1() {
+        
+        this.recurrence_period = " ";
+    }
      
     
      
-
+    
     public RecurringEvent_1(String recurrencePattern, String recurrence_period, LocalDateTime end_date, String description, int id, String title, LocalDateTime date, String location,int isRecurring) {
         super(id, title, date, location,description,isRecurring);
         this.recurrencePattern = recurrencePattern;
@@ -30,6 +36,34 @@ public final class RecurringEvent_1 extends AbstractEvent {
         this.end_date = end_date;
          
         
+    }
+
+    public RecurringEvent_1(String recurrencePattern, String recurrence_period, LocalDateTime end_date, int id, String title, LocalDateTime date, String location, String description, int isRecurring, int idCategory) {
+        super(id, title, date, location, description, isRecurring, idCategory);
+        this.recurrencePattern = recurrencePattern;
+        this.recurrence_period = recurrence_period;
+        this.end_date = end_date;
+    }
+    
+    public void setRecurrencePattern(String recurrencePattern) {
+        this.recurrencePattern = recurrencePattern;
+    }
+
+    public void setRecurrence_period(String recurrence_period) {
+        this.recurrence_period = recurrence_period;
+    }
+    
+     public void setEnd_date(String dateTimeStr) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            this.end_date  = LocalDateTime.parse(dateTimeStr, formatter);
+        } catch (Exception e) {
+            System.err.println("Erreur de format de date : " + e.getMessage());
+            this.end_date = null;  // Ou gérer différemment si nécessaire
+        }
+    }
+    public void setEnd_date(LocalDateTime end_date) {
+        this.end_date = end_date;
     }
     
 
@@ -72,6 +106,12 @@ public final class RecurringEvent_1 extends AbstractEvent {
         }
         return occurrences;
     }
+
+    @Override
+    public void setIsRecurring(int isRecurring) {
+        this.isRecurring = isRecurring;
+    }
+        
 
     @Override
     public String toString() {

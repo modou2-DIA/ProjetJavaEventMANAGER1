@@ -19,8 +19,10 @@ public sealed abstract class AbstractEvent permits BasicEvent_1, RecurringEvent_
     protected   String location;
     protected   String description; 
     protected   int isRecurring; 
+    protected int idCategory ; 
 
     public AbstractEvent() {
+        this.isRecurring =0;
     }
 
     
@@ -33,6 +35,18 @@ public sealed abstract class AbstractEvent permits BasicEvent_1, RecurringEvent_
         this.description = description;
         this.isRecurring= isRecurring;
     }
+
+    public AbstractEvent(int id, String title, LocalDateTime date, String location, String description, int isRecurring, int idCategory) {
+        this.id = id;
+        this.title = title;
+        this.date = date;
+        this.location = location;
+        this.description = description;
+        this.isRecurring = isRecurring;
+        this.idCategory = idCategory;
+    }
+    
+    
 
     public int getId() {
         return id;
@@ -96,6 +110,25 @@ public sealed abstract class AbstractEvent permits BasicEvent_1, RecurringEvent_
     public void setIsRecurring(int isRecurring) {
         this.isRecurring = isRecurring;
     }
+
+    public int getIsRecurring() {
+        return isRecurring;
+    }
+
+    public int getIdCategory() {
+        return idCategory;
+    }
+
+    public void setIdCategory(int idCategory) {
+        this.idCategory = idCategory;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+    
+    
+    
     
     
     
