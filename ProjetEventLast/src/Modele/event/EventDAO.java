@@ -28,6 +28,33 @@ public class EventDAO {
         // Charger les événements depuis la base de données lors de l'initialisation
         loadEventsFromDatabase();
     }
+    
+    
+    public EventStatistics calculateEventStatistics() throws SQLException {
+    int totalEvents = 0;
+    int monthlyEvents = 0;
+
+    String totalQuery = "SELECT COUNT(*) AS total FROM events";
+    String monthlyQuery = "SELECT COUNT(*) AS monthly FROM events WHERE EXTRACT(MONTH FROM date_event) = EXTRACT(MONTH FROM CURRENT_DATE)";
+
+    try (Statement statement = connection.createStatement()) {
+        // Total events
+        ResultSet totalResult = statement.executeQuery(totalQuery);
+        if (totalResult.next()) {
+            totalEvents = totalResult.getInt("total");
+        }
+
+        // Monthly events
+        ResultSet monthlyResult = statement.executeQuery(monthlyQuery);
+        if (monthlyResult.next()) {
+            monthlyEvents = monthlyResult.getInt("monthly");
+        }
+    }
+
+    // Retourner un nouvel objet EventStatistics
+    return new EventStatistics(totalEvents, monthlyEvents);
+}
+
 
     // Charger les événements depuis la base de données
     private void loadEventsFromDatabase() {
