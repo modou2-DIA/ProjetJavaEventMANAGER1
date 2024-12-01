@@ -14,16 +14,38 @@ public class Client {
     private int Id ;
     private String fullName ;
     private String email ;
-    public Client(){
-        Scanner x = new Scanner(System.in);
-        System.out.print("tapez l'Id du client \n");       
-        Id=x.nextInt();
-        x.nextLine();
-        System.out.print("tapez le nom complet du client \n");
-        fullName=x.nextLine();
-        System.out.print("tapez l'email du client \n");
-        email=x.nextLine(); 
+    public Client(){}
+    public Client(int Id , String fullName, String email) 
+    {
+        this.Id= Id;        
+        this.fullName= fullName;
+        this.email= email;  
     }
+    public void setId(int Id)
+    {
+        this.Id=Id;
+    }
+    public void setfullName(String fullName)
+    {
+        this.fullName=fullName;
+    }
+        public void setemail(String email)
+    {
+        this.email=email;
+    }
+    public int getInt()
+    {
+        return (Id);
+    }
+    public String getfullName() 
+    {
+        return (fullName) ;
+    }    
+    public String getemail()
+    {
+      return (email);  
+    }
+
     @Override
     public String toString(){
         return("l'Id du client : "+Id+"\n"+"Le nom complet du client : "
