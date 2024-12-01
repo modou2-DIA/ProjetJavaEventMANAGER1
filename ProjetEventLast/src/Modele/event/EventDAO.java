@@ -35,7 +35,10 @@ public class EventDAO {
     int monthlyEvents = 0;
 
     String totalQuery = "SELECT COUNT(*) AS total FROM events";
-    String monthlyQuery = "SELECT COUNT(*) AS monthly FROM events WHERE EXTRACT(MONTH FROM date_event) = EXTRACT(MONTH FROM CURRENT_DATE)";
+    String monthlyQuery = """
+                          SELECT COUNT(*) AS monthly 
+                          FROM events 
+                          WHERE EXTRACT(MONTH FROM TO_DATE(date_event, 'YYYY-MM-DD HH24:MI:SS')) = EXTRACT(MONTH FROM CURRENT_DATE)""";
 
     try (Statement statement = connection.createStatement()) {
         // Total events

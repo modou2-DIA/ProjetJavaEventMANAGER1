@@ -31,7 +31,7 @@ public class EventController {
     try {
         return eventDAO.calculateEventStatistics();
     } catch (SQLException e) {
-         
+          System.err.println("Erreur SQL : " + e.getMessage());
         return new EventStatistics(0, 0); // Valeurs par défaut en cas d'erreur
     }
 }
