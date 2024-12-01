@@ -8,6 +8,7 @@ package Modele.client;
  *
  * @author nadae
  */
+
 public class ClientHistory {
     
 }
