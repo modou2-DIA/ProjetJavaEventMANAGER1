@@ -2,6 +2,7 @@
 package projetjavagestioneventement;
 
 import Controller.Event.EventController;
+import Modele.Event.EventStatistics;
 import Vue.Event.GestionCategorieView;
 import Vue.Event.GestionEvenementsView;
 import javafx.collections.FXCollections;
@@ -63,8 +64,8 @@ public class HomePageView1 {
         categoryButton.setOnAction(e -> new GestionCategorieView(stage, controller).show());
 
         // *** ZONE PRINCIPALE ***
-        VBox mainContent = new VBox(20);
-        mainContent.setPadding(new Insets(20));
+        VBox mainContent = new VBox(15);
+        mainContent.setPadding(new Insets(15));
         mainContent.setAlignment(Pos.TOP_LEFT);
 
         // Titre principal
@@ -105,9 +106,10 @@ public class HomePageView1 {
                 "2 réservations en attente",
                 "1 événement annulé"
         ));
-        notificationList.setPrefHeight(100);
-
-        mainContent.getChildren().addAll(dashboardTitle, welcomeTextBox, chartsBox, notificationLabel, notificationList);
+        notificationList.setPrefHeight(50);
+        EventStatistics stats = controller.getDashboardStatistics();
+        VBox statisticsBox = createStatisticsBox(stats);
+        mainContent.getChildren().addAll(dashboardTitle, welcomeTextBox,statisticsBox, chartsBox, notificationLabel, notificationList);
 
         // *** DISPOSITION GLOBALE ***
         BorderPane layout = new BorderPane();
@@ -181,4 +183,20 @@ public class HomePageView1 {
         }
         isMenuCollapsed = !isMenuCollapsed;
     }
+    
+    private VBox createStatisticsBox(EventStatistics stats) {
+    VBox statsBox = new VBox(10);
+    statsBox.setPadding(new Insets(5));
+    statsBox.setAlignment(Pos.CENTER_LEFT);
+
+    Label totalEventsLabel = new Label("Nombre total d'événements : " + stats.totalEvents());
+    totalEventsLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+
+    Label monthlyEventsLabel = new Label("Événements ce mois-ci : " + stats.monthlyEvents());
+    monthlyEventsLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+
+    statsBox.getChildren().addAll(totalEventsLabel, monthlyEventsLabel);
+    return statsBox;
+}
+
 }

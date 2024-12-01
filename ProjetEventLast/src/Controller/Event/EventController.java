@@ -27,6 +27,16 @@ public class EventController {
         this.eventDAO = eventDAO;
     }
     
+    public EventStatistics getDashboardStatistics() {
+    try {
+        return eventDAO.calculateEventStatistics();
+    } catch (SQLException e) {
+          System.err.println("Erreur SQL : " + e.getMessage());
+        return new EventStatistics(0, 0); // Valeurs par défaut en cas d'erreur
+    }
+}
+
+    
     public void handleAddCategory(EventCtegory category) {
     try {
         eventDAO.addCategory(category);
