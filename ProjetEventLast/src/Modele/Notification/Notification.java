@@ -15,11 +15,11 @@ public sealed class Notification permits RecurringNotification, UrgentNotificati
     protected int id;
     protected String message;
     protected LocalDateTime sendDate=LocalDateTime.now();
-    protected boolean isUrgent;
+    protected int isUrgent;
 
     public Notification() {}
 
-    public Notification(int id, String message, boolean isUrgent) {
+    public Notification(int id, String message,int isUrgent) {
         this.id = id;
         this.message = message;
         this.isUrgent = isUrgent;
@@ -45,15 +45,13 @@ public sealed class Notification permits RecurringNotification, UrgentNotificati
         return sendDate;
     }
 
-
-    public boolean isUrgent() {
+    public int getIsUrgent() {
         return isUrgent;
     }
 
-    public void setUrgent(boolean isUrgent) {
+    public void setIsUrgent(int isUrgent) {
         this.isUrgent = isUrgent;
     }
-
     @Override
     public String toString() {
         return "Notification{" +

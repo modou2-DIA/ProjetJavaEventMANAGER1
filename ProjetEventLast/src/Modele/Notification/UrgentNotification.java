@@ -20,7 +20,7 @@ public final class UrgentNotification extends Notification implements Notificati
         super(); 
     }
 
-    public UrgentNotification(int id, String message, boolean isUrgent, String urgencyLevel) {
+    public UrgentNotification(int id, String message, int isUrgent, String urgencyLevel) {
         super(id, message, isUrgent); // Call the parent class constructor
         this.urgencyLevel = urgencyLevel;
     }

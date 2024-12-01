@@ -23,7 +23,7 @@ public final class RecurringNotification extends Notification implements Notific
     }
 
     
-    public RecurringNotification(int id, String message, boolean isUrgent, int recurrenceInterval) {
+    public RecurringNotification(int id, String message, int isUrgent, int recurrenceInterval) {
         super(id, message, isUrgent); 
         this.recurrenceInterval = recurrenceInterval;
     }
