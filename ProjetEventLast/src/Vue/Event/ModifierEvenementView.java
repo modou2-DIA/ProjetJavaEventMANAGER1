@@ -187,7 +187,7 @@ public class ModifierEvenementView {
          
         VBox layout = new VBox(20, topLayout, grid,isRecurringCheckBox,  categoryBox, saveButton);
         layout.setAlignment(Pos.CENTER);
-        Scene scene = new Scene(layout, 800, 600);
+        Scene scene = new Scene(layout, 1000, 600);
         stage.setScene(scene);
        stage.show();
         

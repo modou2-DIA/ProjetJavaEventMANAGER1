@@ -22,8 +22,9 @@ public class Test extends Application {
             Connection con = DatabaseConnection.getConnection();
             EventDAO eventDAO = new EventDAO(con);
             EventController controller = new EventController(eventDAO);
+            HomePageView1 views = new HomePageView1 (primaryStage,controller);
             
-             GestionEvenementsView  views = new GestionEvenementsView (primaryStage,controller);
+    
          views.show();
             
         } catch (SQLException ex) {

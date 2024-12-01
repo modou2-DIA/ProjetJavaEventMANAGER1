@@ -29,6 +29,7 @@ import javafx.stage.Stage;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import projetjavagestioneventement.HomePageView1;
 
 public class GestionEvenementsView {
     private final EventController controller;
@@ -36,20 +37,48 @@ public class GestionEvenementsView {
     private TableView<AbstractEvent> tableView; // Rend tableView accessible globalement
     private ObservableList<AbstractEvent> eventData; // Données des événements
     
-    Map<Integer, String> categoryMap = new HashMap<>();
-
+    private boolean isMenuCollapsed   ;
+    
+    private Button toggleMenuButton;
+    
+    
     
     
     public GestionEvenementsView(Stage stage, EventController controller) {
         this.stage = stage;
         this.controller = controller;
         this.eventData = FXCollections.observableArrayList();// Initialisation de la liste observable
-         
+         isMenuCollapsed = false;
     }
 
     public void show() {
         
+         // *** MENU VERTICAL COLLAPSIBLE ***
+        VBox menu = new VBox(15);
+        menu.setPadding(new Insets(20));
+        menu.setStyle("-fx-background-color: #2c3e50;");
+        menu.setPrefWidth(200);
+
+        toggleMenuButton = new Button("☰");
+        toggleMenuButton.setStyle("-fx-background-color: #16a085; -fx-text-fill: white; -fx-font-size: 14px;");
+        toggleMenuButton.setOnAction(e -> toggleMenu(menu));
+
+        Button homeButton = createMenuButton("Accueil");
+        Button eventButton = createMenuButton("Gestion des événements");
+        Button reservationButton = createMenuButton("Gestion des réservations");
+        Button clientButton = createMenuButton("Gestion des clients");
+        Button categoryButton = createMenuButton("Gestion des catégories");
         
+        menu.getChildren().addAll(toggleMenuButton, homeButton, eventButton, reservationButton, clientButton, categoryButton);
+        
+        eventButton.setOnAction(e -> new GestionEvenementsView(stage,controller).show());
+        
+        homeButton.setOnAction(e -> new HomePageView1(stage,controller).show() );
+        
+        categoryButton.setOnAction(e -> new GestionCategorieView(stage,controller).show());
+        
+        
+       
         // Titre
         Label title = new Label("Gestion des événements");
          
@@ -58,7 +87,7 @@ public class GestionEvenementsView {
         // Barre de recherche
         
         TextField searchField = new TextField();
-        searchField.setPromptText("Rechercher par catégorie, titre, etc...");
+        searchField.setPromptText("Rechercher par titre, categorie, etc...");
         Button searchButton = new Button("Rechercher");
 
         Button addButton = new Button("+ Ajouter un evenement");
@@ -182,12 +211,20 @@ public class GestionEvenementsView {
         loadEventData(null);
         // Boutons principaux
         
+         VBox mainContent = new VBox(20);
+        mainContent.setPadding(new Insets(20));
+        mainContent.setAlignment(Pos.TOP_CENTER);
+        
+        mainContent.getChildren().addAll(title, head, tableView);
+        BorderPane layout = new BorderPane();
+        layout.setLeft(menu);
+        layout.setCenter(mainContent);
 
-        VBox layout = new VBox(20, title, head, tableView);
+        /*VBox layout = new VBox(20, title, head, tableView);
         layout.setPadding(new Insets(20));
-        layout.setAlignment(Pos.TOP_CENTER);
+        layout.setAlignment(Pos.TOP_CENTER);*/
 
-        Scene scene = new Scene(layout, 800, 600);
+        Scene scene = new Scene(layout, 1000, 600);
         stage.setScene(scene);
         stage.show();
     }
@@ -203,9 +240,36 @@ public class GestionEvenementsView {
     private void refreshTable(String mot) {
         loadEventData(mot);
         tableView.refresh();
+    } 
+    
+     // Méthode pour rendre le menu rétractable
+    // Méthode pour rendre le menu rétractable
+    private void toggleMenu(VBox menu) {
+        if (isMenuCollapsed) {
+            menu.setPrefWidth(200);
+            menu.getChildren().forEach(node -> node.setVisible(true));
+            toggleMenuButton.setText("☰"); // Réinitialiser le texte du bouton
+        } else {
+            menu.setPrefWidth(50);
+            menu.getChildren().forEach(node -> {
+                if (node != toggleMenuButton) {
+                    node.setVisible(false);
+                }
+            });
+            toggleMenuButton.setText("☰"); // Maintenir le bouton visible
+        }
+        isMenuCollapsed = !isMenuCollapsed;
     }
-    
-    
+     // Méthode pour créer un bouton de menu avec un style unifié
+    private Button createMenuButton(String text) {
+        Button button = new Button(text);
+        button.setMaxWidth(Double.MAX_VALUE);
+        button.setStyle("-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;");
+        button.setOnMouseEntered(e -> button.setStyle("-fx-background-color: #16a085; -fx-text-fill: white;"));
+        button.setOnMouseExited(e -> button.setStyle("-fx-background-color: #34495e; -fx-text-fill: white;"));
+        return button;
+    }
+
 
        
  }

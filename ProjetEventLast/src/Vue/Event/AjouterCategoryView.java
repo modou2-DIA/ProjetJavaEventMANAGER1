@@ -91,7 +91,7 @@ public class AjouterCategoryView {
         layout.setAlignment(Pos.CENTER);
 
         // Scène
-        Scene scene = new Scene(layout, 800, 600);
+        Scene scene = new Scene(layout, 1000, 600);
         stage.setScene(scene);
         stage.show();
     }

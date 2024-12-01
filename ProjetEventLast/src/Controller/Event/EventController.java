@@ -54,7 +54,6 @@ public class EventController {
     }
     
     
-    
      // Supprimer un événement
     public boolean handleDeleteCat(EventCtegory event) {
       try {
@@ -80,7 +79,7 @@ public class EventController {
         
     }
     
-     
+     //Ajouter ou modifier un evenement
     public void handleUpdateOrAddEvent(TextField titleField, DatePicker datePicker, TextField locationField, TextArea descriptionArea, 
                           CheckBox isRecurringCheckBox, TextField recurrencePatternField, DatePicker endDatePicker,String category,AbstractEvent evt)  {
         

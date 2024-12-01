@@ -122,13 +122,6 @@ public class AjouterEvenementView {
                 alert.showAndWait();
             }
         });
-        Button manageCategoriesButton = new Button("Gérer les catégories");
-
-        manageCategoriesButton.setOnAction(e -> {
-            // Ouvre la gestion des catégories
-            new GestionCategorieView(stage,controller).show();
-        });
-  
         GridPane grid = new GridPane();
         grid.setVgap(10);
         grid.setHgap(10);
@@ -167,9 +160,9 @@ public class AjouterEvenementView {
 
         // Scene setup
         
-        VBox layout = new VBox(20, topLayout, grid,isRecurringCheckBox, grid_recuring, categoryBox, saveButton,manageCategoriesButton);
+        VBox layout = new VBox(20, topLayout, grid,isRecurringCheckBox, grid_recuring, categoryBox, saveButton );
         layout.setAlignment(Pos.CENTER);
-        Scene scene = new Scene(layout, 800, 600);
+        Scene scene = new Scene(layout, 1000, 600);
         stage.setScene(scene);
        stage.show();
          
