@@ -10,6 +10,8 @@
 package Vue.Event;
 import Controller.Event.EventController;
 import Modele.Event.EventCtegory;
+import Vue.Notification.NotificationView;
+import Vue.Reservation.GestionReservationsView;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,19 +66,19 @@ public class GestionCategorieView {
         Button homeButton = createMenuButton("Accueil");
         Button eventButton = createMenuButton("Gestion des événements");
         Button reservationButton = createMenuButton("Gestion des réservations");
-        Button clientButton = createMenuButton("Gestion des clients");
+        Button notificationButton = createMenuButton("Gestion des notifications");
         Button categoryButton = createMenuButton("Gestion des catégories");
         
-        menu.getChildren().addAll(toggleMenuButton, homeButton, eventButton, reservationButton, clientButton, categoryButton);
+        menu.getChildren().addAll(toggleMenuButton, homeButton, eventButton, reservationButton, notificationButton, categoryButton);
         
+         reservationButton.setOnAction(e -> new GestionReservationsView(stage, controller).show());
         eventButton.setOnAction(e -> new GestionEvenementsView(stage,controller).show());
         
         homeButton.setOnAction(e -> new HomePageView1(stage,controller).show() );
         
         categoryButton.setOnAction(e -> new GestionCategorieView(stage,controller).show());
         
-        
-        
+        notificationButton.setOnAction(e -> new NotificationView(stage,controller).show());
         
         
         

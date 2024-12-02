@@ -3,18 +3,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Vue.Event;
-
-/**
- *
- * @author DELL
- */
-
-
 import Controller.Event.EventController;
 import Modele.Event.AbstractEvent;
+import Vue.Notification.NotificationView;
+import Vue.Reservation.GestionReservationsView;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.SimpleStringProperty;
@@ -25,8 +18,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import projetjavagestioneventement.HomePageView1;
@@ -66,18 +57,19 @@ public class GestionEvenementsView {
         Button homeButton = createMenuButton("Accueil");
         Button eventButton = createMenuButton("Gestion des événements");
         Button reservationButton = createMenuButton("Gestion des réservations");
-        Button clientButton = createMenuButton("Gestion des clients");
+        Button notificationButton = createMenuButton("Gestion des notifications");
         Button categoryButton = createMenuButton("Gestion des catégories");
         
-        menu.getChildren().addAll(toggleMenuButton, homeButton, eventButton, reservationButton, clientButton, categoryButton);
+        menu.getChildren().addAll(toggleMenuButton, homeButton, eventButton, reservationButton, notificationButton, categoryButton);
         
+         reservationButton.setOnAction(e -> new GestionReservationsView(stage, controller).show());
         eventButton.setOnAction(e -> new GestionEvenementsView(stage,controller).show());
         
         homeButton.setOnAction(e -> new HomePageView1(stage,controller).show() );
         
         categoryButton.setOnAction(e -> new GestionCategorieView(stage,controller).show());
         
-        
+        notificationButton.setOnAction(e -> new NotificationView(stage,controller).show());
        
         // Titre
         Label title = new Label("Gestion des événements");
@@ -220,9 +212,6 @@ public class GestionEvenementsView {
         layout.setLeft(menu);
         layout.setCenter(mainContent);
 
-        /*VBox layout = new VBox(20, title, head, tableView);
-        layout.setPadding(new Insets(20));
-        layout.setAlignment(Pos.TOP_CENTER);*/
 
         Scene scene = new Scene(layout, 1000, 600);
         stage.setScene(scene);

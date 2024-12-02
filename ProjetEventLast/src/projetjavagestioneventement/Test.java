@@ -2,9 +2,9 @@ package projetjavagestioneventement;
 
 import Connection.DatabaseConnection;
 import Controller.Event.EventController;
-import Controller.Notification.NotificationController;
 import Modele.Event.EventDAO;
-import Vue.Notification.NotificationView;
+import Modele.Notification.NotificationDAO;
+import Modele.Reservations.ReservationDAO;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -22,17 +22,11 @@ public class Test extends Application {
          try {
             Connection con = DatabaseConnection.getConnection();
             EventDAO eventDAO = new EventDAO(con);
-            EventController controller = new EventController(eventDAO);
+            NotificationDAO notificationDAO= new NotificationDAO(con);
+            ReservationDAO reservationDAO = new  ReservationDAO(con);
+            EventController    controller = new EventController(eventDAO,notificationDAO,reservationDAO);
             HomePageView1 views = new HomePageView1 (primaryStage,controller);
-            
-            
-            NotificationController notificationController = new NotificationController(DatabaseConnection.getConnection());
-            NotificationView notificationView = new NotificationView(primaryStage, notificationController);
-            notificationView.show();
-
-            
-    
-         //views.show();
+            views.show();
             
         } catch (SQLException ex) {
             Logger.getLogger(Test.class.getName()).log(Level.SEVERE, null, ex);

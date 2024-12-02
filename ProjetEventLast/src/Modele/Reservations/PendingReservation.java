@@ -3,26 +3,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Modele.Reservations;
-
-import Modele.Event.AbstractEvent;
-import Modele.client.Client;
-
-/**
- *
- * @author nadae
- */
 import java.time.LocalDateTime;
-
-/**
- *
- * @author nadae
- */
 public class PendingReservation extends Reservation {
     private LocalDateTime reminderDate;
 
     // Constructor now uses int for event ID instead of AbstractEvent
-    public PendingReservation(int id, int id_event, Client client, LocalDateTime reminderDate) {
-        super(id, id_event, client);  // Pass event ID to the super class constructor
+    public PendingReservation(int id, int id_event, int id_client, LocalDateTime reminderDate) {
+        super(id, id_event, id_client);  // Pass event ID to the super class constructor
         this.reminderDate = reminderDate;
     }
 

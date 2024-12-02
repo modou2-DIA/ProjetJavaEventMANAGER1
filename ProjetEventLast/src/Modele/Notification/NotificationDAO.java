@@ -71,5 +71,26 @@ public class NotificationDAO {
         }
         return notifications;
     }
+    
+        // Méthode pour récupérer les 3 dernières notifications depuis la base de données
+    public  List<String> getLastNotifications() {
+        List<String> notifications = new ArrayList<>();
+        
+        String query = """
+                       SELECT message
+                       FROM notifications
+                       ORDER BY send_date DESC
+                       FETCH FIRST 3 ROWS ONLY;""";
+        try (Statement statement = connection.createStatement();
+             ResultSet rs = statement.executeQuery(query)) {
+           
+            while (rs.next()) {
+                notifications.add(rs.getString("message"));
+            }
+        } catch (Exception e) {
+        }
+
+        return notifications;
+    }
 }
 

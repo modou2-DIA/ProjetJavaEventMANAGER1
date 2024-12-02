@@ -9,6 +9,8 @@ import Controller.Event.EventController;
 import Modele.Event.AbstractEvent;
 import Modele.Event.EventCtegory;
 import Modele.Event.EventDAO;
+import Modele.Notification.NotificationDAO;
+import Modele.Reservations.ReservationDAO;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -22,7 +24,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
@@ -170,7 +171,10 @@ public class ModifierEvenementView {
                 // Fermer l'écran actuel et ouvrir l'écran précédent
                 Connection con = DatabaseConnection.getConnection();
                 EventDAO eventDAO = new EventDAO(con);
-                controller = new EventController(eventDAO);
+                 NotificationDAO notificationDAO = new NotificationDAO (con);
+                ReservationDAO reservationDAO = new  ReservationDAO(con);
+                controller = new EventController(eventDAO,notificationDAO,reservationDAO);
+                 
                 new GestionEvenementsView(stage,controller).show();
             } catch (SQLException ex) {
                 Logger.getLogger(ModifierEvenementView.class.getName()).log(Level.SEVERE, null, ex);

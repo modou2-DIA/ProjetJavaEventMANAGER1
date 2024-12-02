@@ -14,6 +14,8 @@ import Connection.DatabaseConnection;
 import Controller.Event.EventController;
 import Modele.Event.EventCtegory;
 import Modele.Event.EventDAO;
+import Modele.Notification.NotificationDAO;
+import Modele.Reservations.ReservationDAO;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -30,7 +32,8 @@ import javafx.stage.Stage;
 public class AjouterEvenementView {
 
     private final Stage stage;
-     private EventController controller;
+     private EventController controller; 
+     
 
     public AjouterEvenementView(Stage stage,EventController controller) {
         this.stage = stage;
@@ -145,7 +148,9 @@ public class AjouterEvenementView {
                 // Fermer l'écran actuel et ouvrir l'écran précédent
                 Connection con = DatabaseConnection.getConnection();
                 EventDAO eventDAO = new EventDAO(con);
-                controller = new EventController(eventDAO);
+                 NotificationDAO notificationDAO = new NotificationDAO (con);
+                ReservationDAO reservationDAO = new  ReservationDAO(con);
+                controller = new EventController(eventDAO,notificationDAO,reservationDAO);
                 new GestionEvenementsView(stage,controller).show();
             } catch (SQLException ex) {
                 Logger.getLogger(ModifierEvenementView.class.getName()).log(Level.SEVERE, null, ex);

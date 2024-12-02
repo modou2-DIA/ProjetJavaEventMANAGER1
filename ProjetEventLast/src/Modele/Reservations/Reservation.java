@@ -3,32 +3,49 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Modele.Reservations;
-
-import Modele.Event.AbstractEvent;
-import Modele.client.Client;
-
-/**
- *
- * @author nadae
- */
 public class Reservation {
     private int id;
     private int id_event;  
-    private Client client;
-    private boolean isConfirmed;
+    private int id_client;
+    private int isConfirmed;
 
     
-    public Reservation(int id, int id_event, Client client) {
+    public Reservation(int id, int id_event, int client) {
         this.id = id;
         this.id_event = id_event;  // Set the event ID directly
-        this.client = client;
-        this.isConfirmed = false;  // Default to not confirmed
+        this.id_client = client;
+        this.isConfirmed = 0;  // Default to not confirmed
     }
 
     public int getId() {
         return id;
     }
 
+    public int getId_event() {
+        return id_event;
+    }
+
+    public int getId_client() {
+        return id_client;
+    }
+
+    public int isIsConfirmed() {
+        return isConfirmed;
+    }
+
+    public void setId_event(int id_event) {
+        this.id_event = id_event;
+    }
+
+    public void setId_client(int id_client) {
+        this.id_client = id_client;
+    }
+
+    public void setIsConfirmed(int isConfirmed) {
+        this.isConfirmed = isConfirmed;
+    }
+    
+    
     public void setId(int id) {
         this.id = id;
     }
@@ -41,20 +58,13 @@ public class Reservation {
         this.id_event = id_event;  // Setter for event ID
     }
 
-    public Client getClient() {
-        return client;
-    }
-
-    public void setClient(Client client) {
-        this.client = client;
-    }
-
-    public boolean isConfirmed() {
+   
+    public int isConfirmed() {
         return isConfirmed;
     }
 
     public void confirm() {
-        this.isConfirmed = true;  // Mark as confirmed
+        this.isConfirmed = 1;  // Mark as confirmed
     }
 
     @Override
@@ -62,7 +72,7 @@ public class Reservation {
         return "Reservation{" +
                 "id=" + id +
                 ", id_event=" + id_event +  // Display event ID
-                ", client=" + client +
+                ", client=" + id_client +
                 ", isConfirmed=" + isConfirmed +
                 '}';
     }

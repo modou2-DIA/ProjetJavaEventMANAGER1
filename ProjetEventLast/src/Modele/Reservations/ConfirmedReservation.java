@@ -4,25 +4,17 @@
  */
 package Modele.Reservations;
 
-import Modele.Event.AbstractEvent;
-import Modele.client.Client;
-import java.time.LocalDateTime;
-
-/**
- *
- * @author nadae
- */
-
 public final class ConfirmedReservation extends Reservation {
     private String confirmationCode;
 
     // Constructor now uses int for event ID instead of AbstractEvent
-    public ConfirmedReservation(int id, int id_event, Client client, String confirmationCode) {
-        super(id, id_event, client);  // Pass event ID to the super class constructor
+    public ConfirmedReservation(int id, int id_event, int id_client, String confirmationCode) {
+        super(id, id_event, id_client);  // Pass event ID to the super class constructor
         this.confirmationCode = confirmationCode;
         confirm();  // Call confirm method from the parent class
     }
 
+  
     public String getConfirmationCode() {
         return confirmationCode;
     }

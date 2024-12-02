@@ -10,10 +10,13 @@
  */
 package Vue.Notification;
 
-import Controller.Notification.NotificationController;
+import Controller.Event.EventController;
 import Modele.Notification.Notification;
 import Modele.Notification.UrgentNotification;
 import Modele.Notification.RecurringNotification;
+import Vue.Event.GestionCategorieView;
+import Vue.Event.GestionEvenementsView;
+import Vue.Reservation.GestionReservationsView;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,20 +29,53 @@ import javafx.stage.Stage;
 import java.sql.SQLException;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Pos;
+import projetjavagestioneventement.HomePageView1;
 
 public class NotificationView {
     private final Stage stage;
-    private final NotificationController controller;
+    private final EventController controller;
     private TableView<Notification> tableView;
     private ObservableList<Notification> notificationData;
+    
+      private boolean isMenuCollapsed   ;
+    private Button toggleMenuButton;
 
-    public NotificationView(Stage stage, NotificationController controller) {
+    public NotificationView(Stage stage, EventController controller) {
         this.stage = stage;
         this.controller = controller;
         this.notificationData = FXCollections.observableArrayList();
+        isMenuCollapsed=false;
     }
 
-    public void show() {
+    public void show() { 
+        
+         // *** MENU VERTICAL COLLAPSIBLE ***
+        VBox menu = new VBox(15);
+        menu.setPadding(new Insets(20));
+        menu.setStyle("-fx-background-color: #2c3e50;");
+        menu.setPrefWidth(200);
+
+        toggleMenuButton = new Button("☰");
+        toggleMenuButton.setStyle("-fx-background-color: #16a085; -fx-text-fill: white; -fx-font-size: 14px;");
+        toggleMenuButton.setOnAction(e -> toggleMenu(menu));
+
+        Button homeButton = createMenuButton("Accueil");
+        Button eventButton = createMenuButton("Gestion des événements");
+        Button reservationButton = createMenuButton("Gestion des réservations");
+        Button notificationButton = createMenuButton("Gestion des notifications");
+        Button categoryButton = createMenuButton("Gestion des catégories");
+        
+        menu.getChildren().addAll(toggleMenuButton, homeButton, eventButton, reservationButton, notificationButton, categoryButton);
+        
+        reservationButton.setOnAction(e -> new GestionReservationsView(stage, controller).show());
+        eventButton.setOnAction(e -> new GestionEvenementsView(stage,controller).show());
+        
+        homeButton.setOnAction(e -> new HomePageView1(stage,controller).show() );
+        
+        categoryButton.setOnAction(e -> new GestionCategorieView(stage,controller).show());
+        
+        notificationButton.setOnAction(e -> new NotificationView(stage,controller).show());
+
          
         
         Label title = new Label("Gestion des Notifications");
@@ -69,13 +105,24 @@ public class NotificationView {
         Button addButton = new Button("Ajouter Notification");
         addButton.setOnAction(e -> showAddNotificationDialog());
 
-        VBox layout = new VBox(20,title, tableView, addButton);
-        layout.setPadding(new Insets(20));
+        
+         VBox mainContent = new VBox(20);
+        mainContent.setPadding(new Insets(20));
+        mainContent.setAlignment(Pos.TOP_CENTER);
+        
+        mainContent.getChildren().addAll(title, tableView, addButton);
+        BorderPane layout = new BorderPane();
+        layout.setLeft(menu);
+        layout.setCenter(mainContent);
 
-        Scene scene = new Scene(layout, 800, 600);
+
+        Scene scene = new Scene(layout, 1000, 600);
         stage.setScene(scene);
         stage.show();
-    }
+        
+        
+        
+    } 
 
     private void loadNotifications() {
         try {
@@ -87,8 +134,162 @@ public class NotificationView {
     }
 
     private void showAddNotificationDialog() {
-        // Ajouter une fenêtre pour créer une nouvelle notification
-        // Implémenter selon vos besoins
+    // Fenêtre de dialogue pour ajouter une notification
+    Stage dialogStage = new Stage();
+    dialogStage.setTitle("Ajouter une Notification");
+
+    // Champs de saisie
+    Label messageLabel = new Label("Message :");
+    TextField messageField = new TextField();
+
+    Label typeLabel = new Label("Type de Notification :");
+    ToggleGroup typeGroup = new ToggleGroup();
+    RadioButton urgentButton = new RadioButton("Urgente");
+    RadioButton recurringButton = new RadioButton("Récurrente");
+    urgentButton.setToggleGroup(typeGroup);
+    recurringButton.setToggleGroup(typeGroup);
+
+    // Champs spécifiques pour notification urgente
+    Label urgencyLevelLabel = new Label("Niveau d'urgence :");
+    TextField urgencyLevelField = new TextField();
+    urgencyLevelField.setPromptText("Exemple : Haute, Moyenne, Faible");
+    urgencyLevelField.setVisible(false);
+
+    // Champs spécifiques pour notification récurrente
+    Label recurrenceIntervalLabel = new Label("Intervalle de récurrence (jours) :");
+    TextField recurrenceIntervalField = new TextField();
+    recurrenceIntervalField.setPromptText("Exemple : 7 pour une semaine");
+    recurrenceIntervalField.setVisible(false);
+
+    // Afficher les champs en fonction du type sélectionné
+    typeGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+        boolean isUrgentSelected = urgentButton.isSelected();
+        urgencyLevelLabel.setVisible(isUrgentSelected);
+        urgencyLevelField.setVisible(isUrgentSelected);
+        recurrenceIntervalLabel.setVisible(!isUrgentSelected);
+        recurrenceIntervalField.setVisible(!isUrgentSelected);
+    });
+
+        // Boutons
+        Button saveButton = new Button("Enregistrer");
+        saveButton.setOnAction(e -> {
+            String message = messageField.getText();
+
+        // Vérification des champs requis
+        if (message.isEmpty() || typeGroup.getSelectedToggle() == null) {
+            showErrorDialog("Veuillez remplir tous les champs requis !");
+            return;
+        }
+
+        try {
+            if (urgentButton.isSelected()) {
+                String urgencyLevel = urgencyLevelField.getText();
+                if (urgencyLevel.isEmpty()) {
+                    showErrorDialog("Veuillez spécifier le niveau d'urgence !");
+                    return;
+                }
+
+                // Créer une notification urgente
+                UrgentNotification urgentNotification = new UrgentNotification(
+                        0, message, 1, urgencyLevel
+                );
+                controller.addNotification(urgentNotification);
+            } else if (recurringButton.isSelected()) {
+                String recurrenceIntervalStr = recurrenceIntervalField.getText();
+                if (recurrenceIntervalStr.isEmpty()) {
+                    showErrorDialog("Veuillez spécifier l'intervalle de récurrence !");
+                    return;
+                }
+
+                int recurrenceInterval;
+                try {
+                    recurrenceInterval = Integer.parseInt(recurrenceIntervalStr);
+                } catch (NumberFormatException ex) {
+                    showErrorDialog("L'intervalle de récurrence doit être un nombre !");
+                    return;
+                }
+
+                // Créer une notification récurrente
+                RecurringNotification recurringNotification = new RecurringNotification(
+                        0, message, 0, recurrenceInterval
+                );
+                controller.addNotification(recurringNotification);
+            }
+
+            // Rafraîchir la table et fermer la boîte de dialogue
+            loadNotifications();
+            dialogStage.close();
+            showSuccessDialog("Notification ajoutée avec succès !");
+        } catch (SQLException ex) {
+            showErrorDialog("Erreur lors de l'ajout de la notification !");
+            
+        }
+    });
+
+            Button cancelButton = new Button("Annuler");
+            cancelButton.setOnAction(e -> dialogStage.close());
+
+            // Mise en page
+            VBox formLayout = new VBox(10,
+            messageLabel, messageField,
+            typeLabel, urgentButton, recurringButton,
+            urgencyLevelLabel, urgencyLevelField,
+            recurrenceIntervalLabel, recurrenceIntervalField,
+            new HBox(10, saveButton, cancelButton)
+            );
+            formLayout.setPadding(new Insets(20));
+            formLayout.setAlignment(Pos.CENTER);
+
+            Scene dialogScene = new Scene(formLayout, 400, 400);
+            dialogStage.setScene(dialogScene);
+            dialogStage.show();
+        }
+
+    private void showErrorDialog(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Erreur");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
+
+    private void showSuccessDialog(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Succès");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    } 
+    
+    
+     // Méthode pour rendre le menu rétractable
+    // Méthode pour rendre le menu rétractable
+    private void toggleMenu(VBox menu) {
+        if (isMenuCollapsed) {
+            menu.setPrefWidth(200);
+            menu.getChildren().forEach(node -> node.setVisible(true));
+            toggleMenuButton.setText("☰"); // Réinitialiser le texte du bouton
+        } else {
+            menu.setPrefWidth(50);
+            menu.getChildren().forEach(node -> {
+                if (node != toggleMenuButton) {
+                    node.setVisible(false);
+                }
+            });
+            toggleMenuButton.setText("☰"); // Maintenir le bouton visible
+        }
+        isMenuCollapsed = !isMenuCollapsed;
+    }
+     // Méthode pour créer un bouton de menu avec un style unifié
+    private Button createMenuButton(String text) {
+        Button button = new Button(text);
+        button.setMaxWidth(Double.MAX_VALUE);
+        button.setStyle("-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;");
+        button.setOnMouseEntered(e -> button.setStyle("-fx-background-color: #16a085; -fx-text-fill: white;"));
+        button.setOnMouseExited(e -> button.setStyle("-fx-background-color: #34495e; -fx-text-fill: white;"));
+        return button;
+    }
+
+
 }
 

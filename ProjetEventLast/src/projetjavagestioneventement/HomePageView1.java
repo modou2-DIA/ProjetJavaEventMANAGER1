@@ -5,6 +5,12 @@ import Controller.Event.EventController;
 import Modele.Event.EventStatistics;
 import Vue.Event.GestionCategorieView;
 import Vue.Event.GestionEvenementsView;
+import Vue.Notification.NotificationView;
+import Vue.Reservation.GestionReservationsView;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -34,94 +40,104 @@ public class HomePageView1 {
         this.controller = controller;
         this.isMenuCollapsed = false; // Initialisation de l'état du menu
     }
-
+    
     public void show() {
-        stage.setTitle("EventEase - Application de Gestion");
+        try {
+            stage.setTitle("EventEase - Application de Gestion");
+            
+            // Ajouter un conteneur pour les notifications en haut à droite
+            
+            // Récupérer les 3 dernières notifications depuis la base de données
+            List<String> lastNotifications = controller.getLastNotifications();
+            
+            ListView<String> notificationList = new ListView<>();
+            notificationList.setItems(FXCollections.observableArrayList(
+                    lastNotifications
+            ));
+            notificationList.setPrefHeight(50);
+            
+            // *** MENU VERTICAL COLLAPSIBLE ***
+            VBox menu = new VBox(15);
+            menu.setPadding(new Insets(20));
+            menu.setStyle("-fx-background-color: #2c3e50;");
+            menu.setPrefWidth(200);
+            
+            // Bouton de bascule toujours visible
+            toggleMenuButton = new Button("☰");
+            toggleMenuButton.setStyle("-fx-background-color: #16a085; -fx-text-fill: white; -fx-font-size: 14px;");
+            toggleMenuButton.setOnAction(e -> toggleMenu(menu)); // Appel à la méthode pour rétracter ou étendre
+            
+            Button homeButton = createMenuButton("Accueil");
+            Button eventButton = createMenuButton("Gestion des événements");
+            Button reservationButton = createMenuButton("Gestion des réservations");
+            Button notificationButton = createMenuButton("Gestion des notifications");
+            Button categoryButton = createMenuButton("Gestion des catégories");
+            
+            // Ajout des boutons au menu
+            menu.getChildren().addAll(toggleMenuButton, homeButton, eventButton, reservationButton, notificationButton, categoryButton);
+            
+            // Gestion des actions des boutons
+            eventButton.setOnAction(e -> new GestionEvenementsView(stage, controller).show());
+            homeButton.setOnAction(e -> new HomePageView1(stage, controller).show());
+            categoryButton.setOnAction(e -> new GestionCategorieView(stage, controller).show());
+            notificationButton.setOnAction(e -> new NotificationView(stage,controller).show());
+             reservationButton.setOnAction(e -> new GestionReservationsView(stage, controller).show());
+            // *** ZONE PRINCIPALE ***
+            VBox mainContent = new VBox(15);
+            mainContent.setPadding(new Insets(15));
+            mainContent.setAlignment(Pos.TOP_LEFT);
+            
+            // Titre principal
+            Label dashboardTitle = new Label("Tableau de Bord");
+            dashboardTitle.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #34495e;");
+            
+            // Texte d'accueil
+            VBox welcomeTextBox = new VBox(10);
+            welcomeTextBox.setPadding(new Insets(10));
+            welcomeTextBox.setAlignment(Pos.TOP_LEFT);
+            
+            Label welcomeTitle = new Label("Bienvenue dans EventEase !");
+            welcomeTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #34495e;");
+            
+            Label welcomeText = new Label("""
+                                                                  Simplifiez la gestion de vos événements avec EventEase :
+                                                                  - Consultez vos données avec des graphiques interactifs.
+                                                                  - Gérez facilement vos événements, catégories et réservations.
+                                                                  - Restez informé grâce à des notifications en temps réel.
+                                                  
+                                                                  """);
+            welcomeText.setStyle("-fx-font-size: 14px; -fx-text-fill: #7f8c8d;");
+            welcomeText.setWrapText(true);
+            
+            welcomeTextBox.getChildren().addAll(welcomeTitle, welcomeText);
+            
+            // Graphiques
+            HBox chartsBox = new HBox(20);
+            chartsBox.getChildren().addAll(createPieChart(), createBarChart());
+            
+            // Notifications
+           
+            EventStatistics stats = controller.getDashboardStatistics();
+            VBox statisticsBox = createStatisticsBox(stats);
+            mainContent.getChildren().addAll(dashboardTitle, welcomeTextBox,statisticsBox, chartsBox,notificationList);
+            
+            // *** DISPOSITION GLOBALE ***
+            BorderPane layout = new BorderPane();
+            layout.setLeft(menu);
+            layout.setCenter(mainContent);
+             
+        
 
-        // *** MENU VERTICAL COLLAPSIBLE ***
-        VBox menu = new VBox(15);
-        menu.setPadding(new Insets(20));
-        menu.setStyle("-fx-background-color: #2c3e50;");
-        menu.setPrefWidth(200);
-
-        // Bouton de bascule toujours visible
-        toggleMenuButton = new Button("☰");
-        toggleMenuButton.setStyle("-fx-background-color: #16a085; -fx-text-fill: white; -fx-font-size: 14px;");
-        toggleMenuButton.setOnAction(e -> toggleMenu(menu)); // Appel à la méthode pour rétracter ou étendre
-
-        Button homeButton = createMenuButton("Accueil");
-        Button eventButton = createMenuButton("Gestion des événements");
-        Button reservationButton = createMenuButton("Gestion des réservations");
-        Button clientButton = createMenuButton("Gestion des clients");
-        Button categoryButton = createMenuButton("Gestion des catégories");
-
-        // Ajout des boutons au menu
-        menu.getChildren().addAll(toggleMenuButton, homeButton, eventButton, reservationButton, clientButton, categoryButton);
-
-        // Gestion des actions des boutons
-        eventButton.setOnAction(e -> new GestionEvenementsView(stage, controller).show());
-        homeButton.setOnAction(e -> new HomePageView1(stage, controller).show());
-        categoryButton.setOnAction(e -> new GestionCategorieView(stage, controller).show());
-
-        // *** ZONE PRINCIPALE ***
-        VBox mainContent = new VBox(15);
-        mainContent.setPadding(new Insets(15));
-        mainContent.setAlignment(Pos.TOP_LEFT);
-
-        // Titre principal
-        Label dashboardTitle = new Label("Tableau de Bord");
-        dashboardTitle.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #34495e;");
-
-        // Texte d'accueil
-        VBox welcomeTextBox = new VBox(10);
-        welcomeTextBox.setPadding(new Insets(10));
-        welcomeTextBox.setAlignment(Pos.TOP_LEFT);
-
-        Label welcomeTitle = new Label("Bienvenue dans EventEase !");
-        welcomeTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #34495e;");
-
-        Label welcomeText = new Label("""
-                Simplifiez la gestion de vos événements avec EventEase :
-                - Consultez vos données avec des graphiques interactifs.
-                - Gérez facilement vos événements, catégories et réservations.
-                - Restez informé grâce à des notifications en temps réel.
-
-                """);
-        welcomeText.setStyle("-fx-font-size: 14px; -fx-text-fill: #7f8c8d;");
-        welcomeText.setWrapText(true);
-
-        welcomeTextBox.getChildren().addAll(welcomeTitle, welcomeText);
-
-        // Graphiques
-        HBox chartsBox = new HBox(20);
-        chartsBox.getChildren().addAll(createPieChart(), createBarChart());
-
-        // Notifications
-        Label notificationLabel = new Label("Notifications :");
-        notificationLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
-
-        ListView<String> notificationList = new ListView<>();
-        notificationList.setItems(FXCollections.observableArrayList(
-                "3 événements commencent bientôt",
-                "2 réservations en attente",
-                "1 événement annulé"
-        ));
-        notificationList.setPrefHeight(50);
-        EventStatistics stats = controller.getDashboardStatistics();
-        VBox statisticsBox = createStatisticsBox(stats);
-        mainContent.getChildren().addAll(dashboardTitle, welcomeTextBox,statisticsBox, chartsBox, notificationLabel, notificationList);
-
-        // *** DISPOSITION GLOBALE ***
-        BorderPane layout = new BorderPane();
-        layout.setLeft(menu);
-        layout.setCenter(mainContent);
-
-        // *** SCENE ET STYLE ***
-        Scene scene = new Scene(layout, 1000, 600);
-        stage.setScene(scene);
-        stage.show();
+            // *** SCENE ET STYLE ***
+            Scene scene = new Scene(layout, 1000, 600);
+            stage.setScene(scene);
+            stage.show();
+        } catch (SQLException ex) {
+            Logger.getLogger(HomePageView1.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
-
+    
+    
     // Méthode pour créer un bouton de menu avec un style unifié
     private Button createMenuButton(String text) {
         Button button = new Button(text);

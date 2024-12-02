@@ -6,6 +6,10 @@ package Controller.Event;
 
 import java.sql.*;
 import Modele.Event.*;
+import Modele.Notification.Notification;
+import Modele.Notification.NotificationDAO;
+import Modele.Reservations.Reservation;
+import Modele.Reservations.ReservationDAO;
 import java.time.format.DateTimeFormatter;
 
 import java.util.List;
@@ -22,10 +26,55 @@ import projetjavagestioneventement.Test;
 
 public class EventController {
     private final EventDAO eventDAO;
+    private final NotificationDAO notificationDAO;
+    private final ReservationDAO reservationDAO ;
+            
+   
+ 
     
-    public EventController(EventDAO eventDAO) {
+    public EventController(EventDAO eventDAO, NotificationDAO notificationDAO,ReservationDAO reservationDAO) {
         this.eventDAO = eventDAO;
+        this.notificationDAO = notificationDAO;
+        this.reservationDAO = reservationDAO ;
     }
+    
+
+     public List<Reservation> getAllReservations(){
+         return reservationDAO.getAllReservations();
+     }
+     
+     public void addReservation(Reservation reservation) throws SQLException 
+     {
+         reservationDAO.addReservation(reservation);
+     }
+     
+     public void updateReservation(Reservation reservation) throws SQLException 
+     {
+         reservationDAO.updateReservation(reservation);
+     }
+     public void deleteReservation(int reservationId) throws SQLException
+     {
+         reservationDAO.deleteReservation(reservationId);
+     }
+     
+     public List<Reservation> getReservationsByClientId(int clientId)
+     {
+         return reservationDAO.getReservationsByClientId(clientId);
+     }
+     
+    public void addNotification(Notification notification) throws SQLException {
+        notificationDAO.addNotification(notification);
+    }
+
+    public List<Notification> getAllNotifications() throws SQLException {
+        return notificationDAO.getAllNotifications();
+    } 
+    
+    public  List<String> getLastNotifications() throws SQLException{
+        return notificationDAO.getLastNotifications();
+    }
+    
+    
     
     public EventStatistics getDashboardStatistics() {
     try {
@@ -74,7 +123,10 @@ public class EventController {
       }
   }
 
-    
+    public String getEventTitle(int idevent)
+    {
+        return eventDAO.getEventTitle(idevent);
+    }
      public List<AbstractEvent> handleSearchEvents(String keyword) {
         return eventDAO.searchEvents(keyword);
     }
@@ -193,4 +245,3 @@ public class EventController {
     
 
 }
-//blabla

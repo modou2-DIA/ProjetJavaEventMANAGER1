@@ -4,10 +4,6 @@
  */
 package Modele.Event;
 
-/**
- *
- * @author DELL
- */
 
 import java.sql.*;
  
@@ -108,6 +104,29 @@ public class EventDAO {
             System.err.println("Erreur lors du chargement des événements : " + e.getMessage());
         }
     }
+    
+   public String getEventTitle(int idevent) {
+    String title = "";
+    String sql = "SELECT title FROM events WHERE id = ?";
+    
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        // Associer l'ID de l'événement à la requête
+        statement.setInt(1, idevent);
+        
+        // Exécuter la requête
+        ResultSet resultSet = statement.executeQuery();
+        
+        // Si un résultat est trouvé, récupérer le titre
+        if (resultSet.next()) {
+            title = resultSet.getString("title");
+        }
+    } catch (SQLException e) {
+        System.err.println("Erreur lors du chargement de l'événement : " + e.getMessage());
+    }
+
+    return title;  // Retourner le titre de l'événement
+}
+
 
     // Ajouter un événement
     public void addEvent(AbstractEvent event) throws SQLException {
