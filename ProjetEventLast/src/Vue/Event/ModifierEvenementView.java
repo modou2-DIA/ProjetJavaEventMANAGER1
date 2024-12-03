@@ -11,6 +11,7 @@ import Modele.Event.EventCtegory;
 import Modele.Event.EventDAO;
 import Modele.Notification.NotificationDAO;
 import Modele.Reservations.ReservationDAO;
+import Modele.client.clientDAO;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -173,8 +174,8 @@ public class ModifierEvenementView {
                 EventDAO eventDAO = new EventDAO(con);
                  NotificationDAO notificationDAO = new NotificationDAO (con);
                 ReservationDAO reservationDAO = new  ReservationDAO(con);
-                controller = new EventController(eventDAO,notificationDAO,reservationDAO);
-                 
+                clientDAO ClientDAO = new clientDAO(con);
+                controller = new EventController(eventDAO,notificationDAO,reservationDAO,ClientDAO);
                 new GestionEvenementsView(stage,controller).show();
             } catch (SQLException ex) {
                 Logger.getLogger(ModifierEvenementView.class.getName()).log(Level.SEVERE, null, ex);

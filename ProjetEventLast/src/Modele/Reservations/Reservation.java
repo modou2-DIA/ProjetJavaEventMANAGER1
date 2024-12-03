@@ -8,6 +8,11 @@ public class Reservation {
     private int id_event;  
     private int id_client;
     private int isConfirmed;
+    private String client_name ;
+    private String title ;
+
+    public Reservation() {
+    }
 
     
     public Reservation(int id, int id_event, int client) {
@@ -16,6 +21,36 @@ public class Reservation {
         this.id_client = client;
         this.isConfirmed = 0;  // Default to not confirmed
     }
+
+    public Reservation(int id, int id_event, int id_client, int isConfirmed, String client_name, String title) {
+        this.id = id;
+        this.id_event = id_event;
+        this.id_client = id_client;
+        this.isConfirmed = isConfirmed;
+        this.client_name = client_name;
+        this.title = title;
+    }
+
+    public void setClient_name(String client_name) {
+        this.client_name = client_name;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public int getIsConfirmed() {
+        return isConfirmed;
+    }
+
+    public String getClient_name() {
+        return client_name;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+    
 
     public int getId() {
         return id;

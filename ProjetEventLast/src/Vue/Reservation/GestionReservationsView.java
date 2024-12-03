@@ -1,5 +1,3 @@
-
-
 package Vue.Reservation;
 
 import Controller.Event.EventController;
@@ -56,15 +54,13 @@ public class GestionReservationsView {
 
         menu.getChildren().addAll(toggleMenuButton, homeButton, eventButton, reservationButton, notificationButton, categoryButton);
 
-    
+        // Actions des boutons du menu
         reservationButton.setOnAction(e -> new GestionReservationsView(stage, controller).show());
-        eventButton.setOnAction(e -> new GestionEvenementsView(stage,controller).show());
-        
-        homeButton.setOnAction(e -> new HomePageView1(stage,controller).show() );
-        
-        categoryButton.setOnAction(e -> new GestionCategorieView(stage,controller).show());
-        
-        notificationButton.setOnAction(e -> new NotificationView(stage,controller).show());
+        eventButton.setOnAction(e -> new GestionEvenementsView(stage, controller).show());
+        homeButton.setOnAction(e -> new HomePageView1(stage, controller).show());
+        categoryButton.setOnAction(e -> new GestionCategorieView(stage, controller).show());
+        notificationButton.setOnAction(e -> new NotificationView(stage, controller).show());
+
         // *** Titre ***
         Label title = new Label("Gestion des Réservations");
         title.setStyle("-fx-font-size: 24px; -fx-text-fill: #0078D7; -fx-font-weight: bold;");
@@ -85,21 +81,26 @@ public class GestionReservationsView {
 
         // *** TableView des réservations ***
         tableView = new TableView<>();
+
+        // Colonne Client
         TableColumn<Reservation, String> clientColumn = new TableColumn<>("Client");
         clientColumn.setCellValueFactory(cellData -> {
-            return new SimpleStringProperty("Client ID: " + cellData.getValue().getId_client());
+            return new SimpleStringProperty(cellData.getValue().getClient_name());
         });
 
+        // Colonne Événement
         TableColumn<Reservation, String> eventColumn = new TableColumn<>("Événement");
         eventColumn.setCellValueFactory(cellData -> {
-            return new SimpleStringProperty("Event ID: " + cellData.getValue().getId_event());
+            return new SimpleStringProperty(cellData.getValue().getTitle());
         });
 
+        // Colonne Statut
         TableColumn<Reservation, String> statusColumn = new TableColumn<>("Statut");
         statusColumn.setCellValueFactory(cellData -> {
             return new SimpleStringProperty(cellData.getValue().isConfirmed() == 1 ? "Confirmée" : "Non confirmée");
         });
 
+        // Colonne Actions
         TableColumn<Reservation, Void> actionsColumn = new TableColumn<>("Actions");
         actionsColumn.setCellFactory(column -> new TableCell<>() {
             private final Button editButton = new Button("Modifier");
@@ -115,10 +116,9 @@ public class GestionReservationsView {
                     Alert confirmationDialog = new Alert(Alert.AlertType.CONFIRMATION);
                     confirmationDialog.setTitle("Confirmation de suppression");
                     confirmationDialog.setHeaderText("Voulez-vous vraiment supprimer cette réservation ?");
-                    confirmationDialog.setContentText("Client : " + reservation.getId_client() + "\nID : " + reservation.getId());
+                    confirmationDialog.setContentText("Client : " + reservation.getClient_name() + "\nÉvénement : " + reservation.getTitle());
                     confirmationDialog.showAndWait().ifPresent(response -> {
                         if (response == ButtonType.OK) {
-                            
                             try {
                                 controller.deleteReservation(reservation.getId());
                                 reservationData.remove(reservation);
@@ -163,7 +163,19 @@ public class GestionReservationsView {
 
     private void loadReservationData(String searchQuery) {
         reservationData.clear();
-        reservationData.addAll(controller.getAllReservations()); // Récupérer les réservations
+        if (searchQuery == null || searchQuery.trim().isEmpty()) {
+            try {
+                reservationData.addAll(controller.getAllReservations());
+            } catch (SQLException ex) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Erreur");
+                alert.setHeaderText("Échec de l'opération");
+                alert.setContentText("Erreur lors du chargement des Reservation\n");
+                alert.show();
+            }
+        } else {
+            //reservationData.addAll(controller.searchReservations(searchQuery));
+        }
     }
 
     private void refreshTable(String searchQuery) {

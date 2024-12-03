@@ -5,6 +5,7 @@ import Controller.Event.EventController;
 import Modele.Event.EventDAO;
 import Modele.Notification.NotificationDAO;
 import Modele.Reservations.ReservationDAO;
+import Modele.client.clientDAO;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -24,7 +25,8 @@ public class Test extends Application {
             EventDAO eventDAO = new EventDAO(con);
             NotificationDAO notificationDAO= new NotificationDAO(con);
             ReservationDAO reservationDAO = new  ReservationDAO(con);
-            EventController    controller = new EventController(eventDAO,notificationDAO,reservationDAO);
+            clientDAO ClientDAO = new clientDAO(con);
+            EventController  controller = new EventController(eventDAO,notificationDAO,reservationDAO,ClientDAO);
             HomePageView1 views = new HomePageView1 (primaryStage,controller);
             views.show();
             

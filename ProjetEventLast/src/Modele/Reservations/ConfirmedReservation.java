@@ -7,6 +7,10 @@ package Modele.Reservations;
 public final class ConfirmedReservation extends Reservation {
     private String confirmationCode;
 
+    public ConfirmedReservation() {
+    }
+    
+    
     // Constructor now uses int for event ID instead of AbstractEvent
     public ConfirmedReservation(int id, int id_event, int id_client, String confirmationCode) {
         super(id, id_event, id_client);  // Pass event ID to the super class constructor

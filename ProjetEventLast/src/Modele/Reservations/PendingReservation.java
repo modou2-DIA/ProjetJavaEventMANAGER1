@@ -3,35 +3,31 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Modele.Reservations;
-import java.time.LocalDateTime;
+import java.util.Date;
 public class PendingReservation extends Reservation {
-    private LocalDateTime reminderDate;
+    private Date reminderDate;
 
+    public PendingReservation() {
+    }
+
+    
     // Constructor now uses int for event ID instead of AbstractEvent
-    public PendingReservation(int id, int id_event, int id_client, LocalDateTime reminderDate) {
+    public PendingReservation(int id, int id_event, int id_client, Date reminderDate) {
         super(id, id_event, id_client);  // Pass event ID to the super class constructor
         this.reminderDate = reminderDate;
     }
 
-    public LocalDateTime getReminderDate() {
+    public Date getReminderDate() {
         return reminderDate;
     }
 
-    public void setReminderDate(LocalDateTime reminderDate) {
+    public void setReminderDate(Date reminderDate) {
         this.reminderDate = reminderDate;
     }
 
-    public boolean needsReminder() {
-        return reminderDate != null && reminderDate.isBefore(LocalDateTime.now());
-    }
+     
 
-    public String generateReminder() {
-        if (needsReminder()) {
-            return "Reminder: Your reservation is coming up!";
-        } else {
-            return "No reminder needed.";
-        }
-    }
+     
 
     @Override
     public String toString() {

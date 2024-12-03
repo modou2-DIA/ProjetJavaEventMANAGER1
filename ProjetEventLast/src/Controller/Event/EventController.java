@@ -10,36 +10,36 @@ import Modele.Notification.Notification;
 import Modele.Notification.NotificationDAO;
 import Modele.Reservations.Reservation;
 import Modele.Reservations.ReservationDAO;
+import Modele.client.clientDAO;
 import java.time.format.DateTimeFormatter;
 
 import java.util.List;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
-import projetjavagestioneventement.Test;
 
 public class EventController {
     private final EventDAO eventDAO;
     private final NotificationDAO notificationDAO;
     private final ReservationDAO reservationDAO ;
+    private final clientDAO ClientDAO ;
             
    
  
     
-    public EventController(EventDAO eventDAO, NotificationDAO notificationDAO,ReservationDAO reservationDAO) {
+    public EventController(EventDAO eventDAO, NotificationDAO notificationDAO,ReservationDAO reservationDAO,clientDAO ClientDAO) {
         this.eventDAO = eventDAO;
         this.notificationDAO = notificationDAO;
         this.reservationDAO = reservationDAO ;
+        this.ClientDAO = ClientDAO;
     }
     
 
-     public List<Reservation> getAllReservations(){
+     public List<Reservation> getAllReservations() throws SQLException{
          return reservationDAO.getAllReservations();
      }
      
@@ -61,6 +61,45 @@ public class EventController {
      {
          return reservationDAO.getReservationsByClientId(clientId);
      }
+     
+     public List<String> getAllEventTitles() {
+    return eventDAO.getAllEventTitles(); // Récupère tous les titres des événements
+}
+
+    public List<String> getAllClientNames() {
+        return ClientDAO.getAllClientNames(); // Récupère tous les noms des clients
+    }
+    
+    public String getClientNameById(int idclient)
+    {
+        return ClientDAO.getClientNameById(idclient);
+    } 
+    
+    public boolean  addClient(String fullName, String email) throws Exception
+    {
+    try {
+             ClientDAO.addClient(fullName, email);
+             return true ;
+         } catch (SQLException e) {
+          System.err.println("Erreur SQL : " + e.getMessage());
+          return false;
+    }
+        
+    }
+    
+    public String getEventTitle(int id)
+    {
+        return eventDAO.getEventTitle(id);
+    }
+
+    public int getEventIdByTitle(String title) {
+        return eventDAO.getEventIdByTitle(title);
+    }
+
+    public int getClientIdByName(String name) {
+        return ClientDAO.getClientIdByName(name);
+    }
+
      
     public void addNotification(Notification notification) throws SQLException {
         notificationDAO.addNotification(notification);
@@ -118,15 +157,16 @@ public class EventController {
       try {
           return eventDAO.deleteCategory(event.getId());
       } catch (SQLException e) {
-          System.err.println("Erreur lors de la suppression de la catégorie : " + e.getMessage());
+           Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Erreur");
+                alert.setHeaderText("Échec de l'opération");
+                alert.setContentText("Erreur lors de la suppression :\n" + e.getMessage());
+                alert.show();
           return false;
       }
   }
 
-    public String getEventTitle(int idevent)
-    {
-        return eventDAO.getEventTitle(idevent);
-    }
+   
      public List<AbstractEvent> handleSearchEvents(String keyword) {
         return eventDAO.searchEvents(keyword);
     }
@@ -215,18 +255,40 @@ public class EventController {
              
             if(evt==null)
             {
+                try{
                 eventDAO.addEvent(event);
             // Afficher un message de succès
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Événement ajouté avec succès !");
             alert.showAndWait();
+                }catch(SQLException ex)
+                {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Erreur");
+                    alert.setHeaderText("Échec de l'opération");
+                    alert.setContentText("Erreur lors de l'ajout d'un évenement \n la date de l evenement doit superieur á la date du jour:\n" );
+                    alert.show();
+                }
             }
             else
             {
+                try{
                 event.setId(evt.getId());
                 eventDAO.updateEvent(event);
             // Afficher un message de succès
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Événement modifiés avec succès !");
-            alert.showAndWait();
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Événement modifiés avec succès !");
+                alert.showAndWait();
+                }catch(SQLException ex)
+                {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Erreur");
+                    alert.setHeaderText("Échec de l'opération");
+                    alert.setContentText("""
+                                         Erreur lors de la modification d'un evenement
+                                         la date de l evenement doit superieur a la date du jour:
+                                         """);
+                    alert.show();
+                }
+                
             }
             
             
@@ -235,8 +297,12 @@ public class EventController {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Veuillez remplir tous les champs obligatoires !");
             alert.showAndWait();
         }
-    } catch (SQLException ex) {
-        Logger.getLogger(Test.class.getName()).log(Level.SEVERE, null, ex);
+    } catch (Exception ex) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Erreur");
+                alert.setHeaderText("Échec de l'opération");
+                alert.setContentText("Erreur innatendue lors de l 'operation :\n" + ex.getMessage());
+                alert.show();
     }
         
     }

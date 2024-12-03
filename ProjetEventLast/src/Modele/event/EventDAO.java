@@ -6,6 +6,8 @@ package Modele.Event;
 
 
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
  
 import java.util.ArrayList;
 
@@ -65,14 +67,19 @@ public class EventDAO {
                 // Vérifie si l'événement est récurrent
                 int isRecurring = resultSet.getInt("is_recurring");
                 AbstractEvent event;
-
+                String dateEventString = resultSet.getString("date_event");
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                String dateendString = resultSet.getString("end_date");
+               
+                
                 if (isRecurring==1) {
                     // Créer un événement récurrent
                     //(String recurrencePattern, String recurrence_period, LocalDateTime end_date, String description, int id, String title, LocalDateTime date, String location)
+                     LocalDateTime dateend = LocalDateTime.parse(dateendString, formatter);
                     event = new RecurringEvent_1(
                             resultSet.getString("recurrence_pattern"),
                             resultSet.getString("recurrence_period"),
-                            resultSet.getTimestamp("end_date").toLocalDateTime(),
+                            dateend,
                             resultSet.getString("description"),
                             resultSet.getInt("id"),
                             resultSet.getString("title"),
@@ -84,11 +91,13 @@ public class EventDAO {
                     );
                     event.setIdCategory(resultSet.getInt("category_id"));
                 } else {
-                    // Créer un événement normal
+                    // Créer un événement 
+                    LocalDateTime dateEvent = LocalDateTime.parse(dateEventString, formatter);
+
                     event = new BasicEvent_1(
                             resultSet.getInt("id"),
                             resultSet.getString("title"),
-                            resultSet.getTimestamp("date_event").toLocalDateTime(),
+                            dateEvent,
                             resultSet.getString("location"),
                             resultSet.getString("description"),
                             isRecurring
@@ -230,6 +239,42 @@ public class EventDAO {
             updateEvent(event); // Met à jour chaque événement dans la base
         }
     }
+    
+    // Récupère tous les titres des événements
+    public List<String> getAllEventTitles() {
+        List<String> titles = new ArrayList<>();
+        String query = "SELECT title FROM events"; // Suppose que la table s'appelle "events" et contient une colonne "title"
+        
+        try (PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                titles.add(resultSet.getString("title"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return titles;
+    }
+
+    // Récupère l'ID d'un événement par son titre
+    public int getEventIdByTitle(String title) {
+        String query = "SELECT id FROM events WHERE title = ?";
+        
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, title);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("id");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return -1; // Retourne -1 si l'événement n'est pas trouvé
+    }
+
     // Ajouter une catégorie
     public void addCategory(EventCtegory category) throws SQLException {
         String sql = "INSERT INTO categories (category_name, color_code) VALUES (?, ?)";
