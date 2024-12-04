@@ -30,6 +30,7 @@ import java.sql.SQLException;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Pos;
 import projetjavagestioneventement.HomePageView1;
+import projetjavagestioneventement.MenuView;
 
 public class NotificationView {
     private final Stage stage;
@@ -49,34 +50,9 @@ public class NotificationView {
 
     public void show() { 
         
+         VBox menu = new MenuView(stage,controller,isMenuCollapsed ).menu();
          // *** MENU VERTICAL COLLAPSIBLE ***
-        VBox menu = new VBox(15);
-        menu.setPadding(new Insets(20));
-        menu.setStyle("-fx-background-color: #2c3e50;");
-        menu.setPrefWidth(200);
-
-        toggleMenuButton = new Button("☰");
-        toggleMenuButton.setStyle("-fx-background-color: #16a085; -fx-text-fill: white; -fx-font-size: 14px;");
-        toggleMenuButton.setOnAction(e -> toggleMenu(menu));
-
-        Button homeButton = createMenuButton("Accueil");
-        Button eventButton = createMenuButton("Gestion des événements");
-        Button reservationButton = createMenuButton("Gestion des réservations");
-        Button notificationButton = createMenuButton("Gestion des notifications");
-        Button categoryButton = createMenuButton("Gestion des catégories");
         
-        menu.getChildren().addAll(toggleMenuButton, homeButton, eventButton, reservationButton, notificationButton, categoryButton);
-        
-        reservationButton.setOnAction(e -> new GestionReservationsView(stage, controller).show());
-        eventButton.setOnAction(e -> new GestionEvenementsView(stage,controller).show());
-        
-        homeButton.setOnAction(e -> new HomePageView1(stage,controller).show() );
-        
-        categoryButton.setOnAction(e -> new GestionCategorieView(stage,controller).show());
-        
-        notificationButton.setOnAction(e -> new NotificationView(stage,controller).show());
-
-         
         
         Label title = new Label("Gestion des Notifications");
          
@@ -262,34 +238,6 @@ public class NotificationView {
     } 
     
     
-     // Méthode pour rendre le menu rétractable
-    // Méthode pour rendre le menu rétractable
-    private void toggleMenu(VBox menu) {
-        if (isMenuCollapsed) {
-            menu.setPrefWidth(200);
-            menu.getChildren().forEach(node -> node.setVisible(true));
-            toggleMenuButton.setText("☰"); // Réinitialiser le texte du bouton
-        } else {
-            menu.setPrefWidth(50);
-            menu.getChildren().forEach(node -> {
-                if (node != toggleMenuButton) {
-                    node.setVisible(false);
-                }
-            });
-            toggleMenuButton.setText("☰"); // Maintenir le bouton visible
-        }
-        isMenuCollapsed = !isMenuCollapsed;
-    }
-     // Méthode pour créer un bouton de menu avec un style unifié
-    private Button createMenuButton(String text) {
-        Button button = new Button(text);
-        button.setMaxWidth(Double.MAX_VALUE);
-        button.setStyle("-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;");
-        button.setOnMouseEntered(e -> button.setStyle("-fx-background-color: #16a085; -fx-text-fill: white;"));
-        button.setOnMouseExited(e -> button.setStyle("-fx-background-color: #34495e; -fx-text-fill: white;"));
-        return button;
-    }
-
-
+    
 }
 

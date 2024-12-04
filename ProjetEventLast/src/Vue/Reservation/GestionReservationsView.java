@@ -2,9 +2,6 @@ package Vue.Reservation;
 
 import Controller.Event.EventController;
 import Modele.Reservations.Reservation;
-import Vue.Event.GestionCategorieView;
-import Vue.Event.GestionEvenementsView;
-import Vue.Notification.NotificationView;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -14,10 +11,11 @@ import javafx.stage.Stage;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.SimpleStringProperty;
-import projetjavagestioneventement.HomePageView1;
+import projetjavagestioneventement.MenuView;
 
 public class GestionReservationsView {
 
@@ -26,7 +24,7 @@ public class GestionReservationsView {
     private TableView<Reservation> tableView;
     private ObservableList<Reservation> reservationData;
     private boolean isMenuCollapsed;
-    private Button toggleMenuButton;
+    
 
     public GestionReservationsView(Stage stage, EventController controller) {
         this.stage = stage;
@@ -36,30 +34,13 @@ public class GestionReservationsView {
     }
 
     public void show() {
+        
+         VBox menu = new MenuView(stage,controller,isMenuCollapsed ).menu();
         // *** MENU VERTICAL ***
-        VBox menu = new VBox(15);
-        menu.setPadding(new Insets(20));
-        menu.setStyle("-fx-background-color: #2c3e50;");
-        menu.setPrefWidth(200);
-
-        toggleMenuButton = new Button("☰");
-        toggleMenuButton.setStyle("-fx-background-color: #16a085; -fx-text-fill: white; -fx-font-size: 14px;");
-        toggleMenuButton.setOnAction(e -> toggleMenu(menu));
-
-        Button homeButton = createMenuButton("Accueil");
-        Button eventButton = createMenuButton("Gestion des événements");
-        Button reservationButton = createMenuButton("Gestion des réservations");
-        Button notificationButton = createMenuButton("Gestion des notifications");
-        Button categoryButton = createMenuButton("Gestion des catégories");
-
-        menu.getChildren().addAll(toggleMenuButton, homeButton, eventButton, reservationButton, notificationButton, categoryButton);
-
-        // Actions des boutons du menu
-        reservationButton.setOnAction(e -> new GestionReservationsView(stage, controller).show());
-        eventButton.setOnAction(e -> new GestionEvenementsView(stage, controller).show());
-        homeButton.setOnAction(e -> new HomePageView1(stage, controller).show());
-        categoryButton.setOnAction(e -> new GestionCategorieView(stage, controller).show());
-        notificationButton.setOnAction(e -> new NotificationView(stage, controller).show());
+        
+       
+        
+ 
 
         // *** Titre ***
         Label title = new Label("Gestion des Réservations");
@@ -104,9 +85,15 @@ public class GestionReservationsView {
         TableColumn<Reservation, Void> actionsColumn = new TableColumn<>("Actions");
         actionsColumn.setCellFactory(column -> new TableCell<>() {
             private final Button editButton = new Button("Modifier");
-            private final Button deleteButton = new Button("Supprimer");
+            private final Button deleteButton = new Button("Annuler");
+             private final Button viewHistoryButton = new Button("Historique");
 
             {
+                 viewHistoryButton.setOnAction(event -> {
+                Reservation reservation = getTableView().getItems().get(getIndex());
+                List<Reservation> clientHistory = controller.getReservationsByClientId(reservation.getId_client());
+                displayClientHistory(clientHistory);
+            });
                 editButton.setOnAction(event -> {
                     Reservation reservation = getTableView().getItems().get(getIndex());
                     new AjouterReservationView(stage, controller).show(reservation);
@@ -137,7 +124,7 @@ public class GestionReservationsView {
                 if (empty) {
                     setGraphic(null);
                 } else {
-                    HBox actions = new HBox(5, editButton, deleteButton);
+                    HBox actions = new HBox(5, editButton, deleteButton,viewHistoryButton);
                     setGraphic(actions);
                 }
             }
@@ -145,6 +132,20 @@ public class GestionReservationsView {
 
         tableView.getColumns().addAll(clientColumn, eventColumn, statusColumn, actionsColumn);
         tableView.setItems(reservationData);
+        
+         // *** Ajout du gestionnaire de survol ***
+         
+        tableView.setRowFactory(tv -> {
+            TableRow<Reservation> row = new TableRow<>();
+            row.setOnMousePressed(event -> {
+                if (!row.isEmpty()) {
+                    Reservation reservation = row.getItem();
+                    showClientReservationHistory(reservation.getId_client());
+                }
+            });
+            return row;
+        });
+        
         loadReservationData(null);
 
         // *** Mise en page ***
@@ -183,23 +184,42 @@ public class GestionReservationsView {
         tableView.refresh();
     }
 
-    private void toggleMenu(VBox menu) {
-        if (isMenuCollapsed) {
-            menu.setPrefWidth(200);
-            menu.getChildren().forEach(node -> node.setVisible(true));
-            toggleMenuButton.setText("☰");
-        } else {
-            menu.setPrefWidth(50);
-            menu.getChildren().forEach(node -> node.setVisible(false));
-            toggleMenuButton.setText("☰");
-        }
-        isMenuCollapsed = !isMenuCollapsed;
-    }
 
-    private Button createMenuButton(String text) {
-        Button button = new Button(text);
-        button.setStyle("-fx-background-color: #34495e; -fx-text-fill: white;");
-        button.setMaxWidth(Double.MAX_VALUE);
-        return button;
+  
+    private void showClientReservationHistory(int clientId) {
+        String clientName = controller.getClientNameById(clientId);
+        ObservableList<Reservation> clientReservations = FXCollections.observableArrayList(controller.getReservationsByClientId( clientId));
+        Stage historyStage = new Stage();
+        historyStage.setTitle("Historique des réservations pour " + clientName);
+        TableView<Reservation> historyTable = new TableView<>(clientReservations);
+        TableColumn<Reservation, String> eventColumn = new TableColumn<>("Événement");
+        eventColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitle()));
+        TableColumn<Reservation, String> dateColumn = new TableColumn<>("Date");
+        dateColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDateReservation()!=null?cellData.getValue().getDateReservation() .toString():" "));
+        TableColumn<Reservation, String> statusColumn = new TableColumn<>("Statut");
+        statusColumn.setCellValueFactory(cellData -> new SimpleStringProperty(
+                cellData.getValue().isConfirmed() == 1 ? "Confirmée" : "Non confirmée"));
+        historyTable.getColumns().addAll(eventColumn, dateColumn, statusColumn);
+        VBox layout = new VBox(10, new Label("Historique des réservations :"), historyTable);
+        layout.setPadding(new Insets(20));
+        layout.setAlignment(Pos.TOP_CENTER);
+        Scene scene = new Scene(layout, 600, 400);
+        historyStage.setScene(scene);
+        historyStage.show();
     }
+    
+    // Méthode pour afficher l'historique des réservations
+private void displayClientHistory(List<Reservation> reservations) {
+    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    alert.setTitle("Historique du client");
+    StringBuilder content = new StringBuilder("Historique des réservations :");
+    for (Reservation res : reservations) {
+        String clientName = controller.getClientNameById(res.getId_client());
+        content.append("").append(clientName).append("\n\n");
+        content.append(res.toString()).append("\n");
+    }
+    alert.setContentText(content.toString());
+    alert.showAndWait();
+}
+
 }

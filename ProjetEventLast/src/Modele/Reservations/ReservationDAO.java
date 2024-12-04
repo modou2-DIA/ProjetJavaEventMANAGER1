@@ -56,29 +56,29 @@ public List<Reservation> getAllReservations() throws SQLException {
 
     // Ajouter une nouvelle réservation
  public void addReservation(Reservation reservation) throws SQLException {
-    String sql = "INSERT INTO Reservation (id, id_event, client_id, isConfirmed, confirmation_code, reminder_date) " +
-                 "VALUES (?, ?, ?, ?, ?, ?)";
+    String sql = "INSERT INTO Reservation ( id_event, client_id, isConfirmed, confirmation_code, reminder_date) " +
+                 "VALUES ( ?, ?, ?, ?, ?)";
 
     try (PreparedStatement statement = connection.prepareStatement(sql)) {
         // Définir les paramètres de la requête
-        statement.setInt(1, reservation.getId());
-        statement.setInt(2, reservation.getIdEvent());
-        statement.setInt(3, reservation.getId_client());
-        statement.setInt(4, reservation.isConfirmed());
+        
+        statement.setInt(1, reservation.getIdEvent());
+        statement.setInt(2, reservation.getId_client());
+        statement.setInt(3, reservation.isConfirmed());
 
         // Gestion des types spécifiques de réservation
         if (reservation instanceof ConfirmedReservation) {
             ConfirmedReservation confirmed = (ConfirmedReservation) reservation;
-            statement.setString(5, confirmed.getConfirmationCode()); // Code de confirmation
-            statement.setNull(6, Types.DATE); // Pas de date de rappel
+            statement.setString(4, confirmed.getConfirmationCode()); // Code de confirmation
+            statement.setNull(5, Types.DATE); // Pas de date de rappel
         } else if (reservation instanceof PendingReservation) {
             PendingReservation pending = (PendingReservation) reservation;
-            statement.setNull(5, Types.VARCHAR); // Pas de code de confirmation
-            statement.setDate(6, (Date) pending.getReminderDate()); // Date de rappel
+            statement.setNull(4, Types.VARCHAR); // Pas de code de confirmation
+            statement.setDate(5, (Date) pending.getReminderDate()); // Date de rappel
         } else {
             // Si la réservation n'est ni confirmée ni en attente
-            statement.setNull(5, Types.VARCHAR);
-            statement.setNull(6, Types.DATE);
+            statement.setNull(4, Types.VARCHAR);
+            statement.setNull(5, Types.DATE);
         }
 
         // Exécuter la requête
@@ -179,5 +179,6 @@ public void updateReservation(Reservation reservation) throws SQLException {
         }
 
         return reservations;
-    }
+    } 
+    
 }

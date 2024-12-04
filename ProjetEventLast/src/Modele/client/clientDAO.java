@@ -58,28 +58,30 @@ public class clientDAO {
         return -1; // Retourne -1 si le client n'est pas trouvé
     }
     
-    public String getClientNameById(int idclient) {
-    String title = "";
-    String sql = "SELECT fullname FROM client WHERE id = ?";
+public String getClientNameById(int idclient) { 
+    String clientName = ""; // Modifier le nom de la variable pour plus de clarté
+    String sql = """
+                 select fullname from CLIENT c , RESERVATION  r 
+                 where c.id = r.client_id  and r.client_id=?"""; // La colonne correcte est fullname
     
     try (PreparedStatement statement = connection.prepareStatement(sql)) {
-        // Associer l'ID de l'événement à la requête
+        // Associer l'ID du client à la requête
         statement.setInt(1, idclient);
         
         // Exécuter la requête
         ResultSet resultSet = statement.executeQuery();
         
-        // Si un résultat est trouvé, récupérer le titre
+        // Si un résultat est trouvé, récupérer le nom complet
         if (resultSet.next()) {
-            title = resultSet.getString("title");
+            clientName = resultSet.getString("fullname"); // Utiliser fullname
         }
     } catch (SQLException e) {
         System.err.println("Erreur lors du chargement du client : " + e.getMessage());
     }
 
-    return title;  // Retourner le titre de l'événement
+    return clientName;  // Retourner le nom complet du client
 }
-    
+
     public void addClient(String fullName, String email) throws Exception {
         String query = "INSERT INTO client (fullname, email) VALUES (?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(query)) {

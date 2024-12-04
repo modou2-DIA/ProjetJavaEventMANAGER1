@@ -3,6 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Modele.Reservations;
+
+import java.time.LocalDate;
+
+
 public class Reservation {
     private int id;
     private int id_event;  
@@ -10,8 +14,10 @@ public class Reservation {
     private int isConfirmed;
     private String client_name ;
     private String title ;
+    private LocalDate dateReservation;
 
     public Reservation() {
+        this.dateReservation = LocalDate.now();
     }
 
     
@@ -102,15 +108,21 @@ public class Reservation {
         this.isConfirmed = 1;  // Mark as confirmed
     }
 
+    public LocalDate  getDateReservation() {
+        return dateReservation;
+    }
+
+    public void setDateReservation(LocalDate dateReservation) {
+        this.dateReservation = dateReservation;
+    }
+
     @Override
     public String toString() {
-        return "Reservation{" +
-                "id=" + id +
-                ", id_event=" + id_event +  // Display event ID
-                ", client=" + id_client +
-                ", isConfirmed=" + isConfirmed +
-                '}';
+        return "Reservation{" + "id=" + id + ", id_event=" + id_event + ", id_client=" + id_client + ", isConfirmed=" + isConfirmed + ", client_name=" + client_name + ", title=" + title + ", dateReservation=" + dateReservation + '}';
     }
+    
+    
+
 }
 
 
