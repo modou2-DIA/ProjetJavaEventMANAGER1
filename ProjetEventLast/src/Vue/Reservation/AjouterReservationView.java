@@ -1,6 +1,7 @@
 package Vue.Reservation;
 
 import Controller.Event.EventController;
+import Modele.Reservations.PendingReservation;
 import Modele.Reservations.Reservation;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -74,6 +75,7 @@ public class AjouterReservationView {
                     int isConfirmed = isConfirmedComboBox.getValue().equals("Oui") ? 1 : 0;
                     
                     if (reservation == null) {
+                        Reservation reservation = new PendingReservation();
                         reservation.setId_event(eventId);
                         reservation.setId_client(clientId);
                         

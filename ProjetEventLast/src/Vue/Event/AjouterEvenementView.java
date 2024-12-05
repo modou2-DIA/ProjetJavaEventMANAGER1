@@ -113,7 +113,7 @@ public class AjouterEvenementView {
             alert.showAndWait();
         }
 
-        // Boutons
+        // Boutons checkEventConflict
         Button saveButton = new Button("Ajouter Événement");
         saveButton.setOnAction(e -> {
             RadioButton selectedCategory = (RadioButton) categoryGroup.getSelectedToggle();
