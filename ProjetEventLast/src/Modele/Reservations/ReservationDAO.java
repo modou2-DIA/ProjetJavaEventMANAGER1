@@ -6,9 +6,11 @@ package Modele.Reservations;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ReservationDAO {
     private final Connection connection;
+     private  List<Reservation> reservations = new ArrayList<>();
 
     // Constructeur
     public ReservationDAO(Connection connection) {
@@ -121,6 +123,11 @@ public void updateReservation(Reservation reservation) throws SQLException {
 
         // Exécuter la requête
         statement.executeUpdate();
+        // Mettre à jour dans la liste locale
+            reservations = reservations.stream()
+                    .map(e -> e.getId() == reservation.getId() ? reservation : e)
+                    .collect(Collectors.toList());
+            
     } catch (SQLException e) {
         // Gestion des erreurs SQL
         System.err.println("Erreur lors de la mise à jour de la réservation : " + e.getMessage());
@@ -136,6 +143,9 @@ public void updateReservation(Reservation reservation) throws SQLException {
             statement.setInt(1, reservationId);
             statement.executeUpdate();
         }
+        reservations =reservations.stream()
+                    .filter(e -> e.getId() != reservationId)
+                    .collect(Collectors.toList());
     }
 
     // Rechercher des réservations par client ID

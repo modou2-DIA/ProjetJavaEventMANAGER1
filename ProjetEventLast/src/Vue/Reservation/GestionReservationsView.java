@@ -1,7 +1,9 @@
 package Vue.Reservation;
 
 import Controller.Event.EventController;
+import Controller.Reservation.ReservationController;
 import Modele.Reservations.Reservation;
+import Vue.Event.GestionEvenementsView;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -15,6 +17,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import projetjavagestioneventement.MenuView;
 
 public class GestionReservationsView {
@@ -25,9 +29,11 @@ public class GestionReservationsView {
     private ObservableList<Reservation> reservationData;
     private boolean isMenuCollapsed;
     
+    
 
-    public GestionReservationsView(Stage stage, EventController controller) {
+    public GestionReservationsView(Stage stage,EventController controller) {
         this.stage = stage;
+      
         this.controller = controller;
         this.reservationData = FXCollections.observableArrayList();
         this.isMenuCollapsed = false;
@@ -35,12 +41,10 @@ public class GestionReservationsView {
 
     public void show() {
         
-         VBox menu = new MenuView(stage,controller,isMenuCollapsed ).menu();
+         
         // *** MENU VERTICAL ***
-        
+        VBox menu = new MenuView(stage,controller,isMenuCollapsed ).menu();
        
-        
- 
 
         // *** Titre ***
         Label title = new Label("Gestion des Réservations");
@@ -84,11 +88,35 @@ public class GestionReservationsView {
         // Colonne Actions
         TableColumn<Reservation, Void> actionsColumn = new TableColumn<>("Actions");
         actionsColumn.setCellFactory(column -> new TableCell<>() {
-            private final Button editButton = new Button("Modifier");
-            private final Button deleteButton = new Button("Annuler");
+            private final Button editButton = new Button();
+            private final Button deleteButton = new Button();
              private final Button viewHistoryButton = new Button("Historique");
 
             {
+                // Ajouter une icône pour le bouton Modifier
+                 ImageView editIcon = new ImageView(new Image(GestionReservationsView .class.getResourceAsStream("/Images/edit.png")));
+                if (editIcon.getImage() == null) {
+                    throw new RuntimeException("Image resource not found: ../Images/edit.png");
+                }
+                
+                editIcon.setFitWidth(16); // Largeur de l'icône
+                editIcon.setFitHeight(16); // Hauteur de l'icône
+                editButton.setGraphic(editIcon); // Définir l'icône sur le bouton
+                editButton.setStyle("-fx-background-color: transparent;"); // Rendre le fond du bouton transparent
+
+                // Ajouter une icône pour le bouton Supprimer
+                ImageView deleteIcon = new ImageView(new Image(GestionReservationsView.class.getResourceAsStream("/Images/delete.png")));
+                if (deleteIcon.getImage() == null) {
+                    throw new RuntimeException("Image resource not found: /Images/delete.png");
+                }
+
+                
+                deleteIcon.setFitWidth(16);
+                deleteIcon.setFitHeight(16);
+                deleteButton.setGraphic(deleteIcon);
+                deleteButton.setStyle("-fx-background-color: transparent;");
+
+                
                  viewHistoryButton.setOnAction(event -> {
                 Reservation reservation = getTableView().getItems().get(getIndex());
                 List<Reservation> clientHistory = controller.getReservationsByClientId(reservation.getId_client());
@@ -213,10 +241,15 @@ private void displayClientHistory(List<Reservation> reservations) {
     Alert alert = new Alert(Alert.AlertType.INFORMATION);
     alert.setTitle("Historique du client");
     StringBuilder content = new StringBuilder("Historique des réservations :");
+    int nbr=0;
     for (Reservation res : reservations) {
-        String clientName = controller.getClientNameById(res.getId_client());
-        content.append("").append(clientName).append("\n\n");
-        content.append(res.toString()).append("\n");
+        if(nbr==0)
+        {
+            String clientName = controller.getClientNameById(res.getId_client());
+            content.append("").append(clientName.toUpperCase()).append("\n\n\n");
+        }
+        nbr++;
+        content.append(res.toString()).append("\n\n");
     }
     alert.setContentText(content.toString());
     alert.showAndWait();

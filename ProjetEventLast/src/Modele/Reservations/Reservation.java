@@ -6,8 +6,8 @@ package Modele.Reservations;
 
 import java.time.LocalDate;
 
-
-public class Reservation {
+public sealed abstract class Reservation  permits PendingReservation , ConfirmedReservation 
+{
     private int id;
     private int id_event;  
     private int id_client;

@@ -5,6 +5,7 @@
 package projetjavagestioneventement;
 
 import Controller.Event.EventController;
+import Controller.Reservation.ReservationController;
 import Vue.Event.GestionCategorieView;
 import Vue.Event.GestionEvenementsView;
 import Vue.Notification.NotificationView;
@@ -22,12 +23,14 @@ public class MenuView {
     
     private final Stage stage;
     private final EventController controller;
+   
     private Button toggleMenuButton;
      private boolean isMenuCollapsed;
 
     public MenuView(Stage stage, EventController controller, boolean isMenuCollapsed) {
         this.stage = stage;
         this.controller = controller;
+        
         this.isMenuCollapsed = isMenuCollapsed;
     }
 

@@ -4,7 +4,7 @@
  */
 package Modele.Reservations;
 import java.util.Date;
-public class PendingReservation extends Reservation {
+public final class PendingReservation extends Reservation {
     private Date reminderDate;
 
     public PendingReservation() {

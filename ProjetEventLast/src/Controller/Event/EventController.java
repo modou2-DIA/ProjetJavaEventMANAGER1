@@ -38,84 +38,7 @@ public class EventController {
         this.ClientDAO = ClientDAO;
     }
     
-
-     public List<Reservation> getAllReservations() throws SQLException{
-         return reservationDAO.getAllReservations();
-     }
-     
-     public void addReservation(Reservation reservation) throws SQLException 
-     {
-         reservationDAO.addReservation(reservation);
-     }
-     
-     public void updateReservation(Reservation reservation) throws SQLException 
-     {
-         reservationDAO.updateReservation(reservation);
-     }
-     public void deleteReservation(int reservationId) throws SQLException
-     {
-         reservationDAO.deleteReservation(reservationId);
-     }
-     
-     public List<Reservation> getReservationsByClientId(int clientId)
-     {
-         return reservationDAO.getReservationsByClientId(clientId);
-     }
-     
-     public List<String> getAllEventTitles() {
-    return eventDAO.getAllEventTitles(); // Récupère tous les titres des événements
-}
-
-    public List<String> getAllClientNames() {
-        return ClientDAO.getAllClientNames(); // Récupère tous les noms des clients
-    }
-    
-    public String getClientNameById(int idclient)
-    {
-        return ClientDAO.getClientNameById(idclient);
-    } 
-    
-    public boolean  addClient(String fullName, String email) throws Exception
-    {
-    try {
-             ClientDAO.addClient(fullName, email);
-             return true ;
-         } catch (SQLException e) {
-          System.err.println("Erreur SQL : " + e.getMessage());
-          return false;
-    }
-        
-    }
-    
-    public String getEventTitle(int id)
-    {
-        return eventDAO.getEventTitle(id);
-    }
-
-    public int getEventIdByTitle(String title) {
-        return eventDAO.getEventIdByTitle(title);
-    }
-
-    public int getClientIdByName(String name) {
-        return ClientDAO.getClientIdByName(name);
-    }
-
-     
-    public void addNotification(Notification notification) throws SQLException {
-        notificationDAO.addNotification(notification);
-    }
-
-    public List<Notification> getAllNotifications() throws SQLException {
-        return notificationDAO.getAllNotifications();
-    } 
-    
-    public  List<String> getLastNotifications() throws SQLException{
-        return notificationDAO.getLastNotifications();
-    }
-    
-    
-    
-    public EventStatistics getDashboardStatistics() {
+      public EventStatistics getDashboardStatistics() {
     try {
         return eventDAO.calculateEventStatistics();
     } catch (SQLException e) {
@@ -124,49 +47,11 @@ public class EventController {
     }
 }
 
-    
-    public void handleAddCategory(EventCtegory category) {
-    try {
-        eventDAO.addCategory(category);
-         
-    } catch (SQLException e) {
-    }  
-            
-}  
-    public void handleUpdateCategory(EventCtegory category) {
-    try {
-        eventDAO.updateCategory(category);
-         
-    } catch (SQLException e) {
-    }  
-            
-}
-    
-    public List<EventCtegory> getAllCategories() throws SQLException  {
-        return eventDAO.getAllCategories();
-    }
-    
-    public String getCategoryName(int id) throws SQLException 
-    {
-        return eventDAO.getCategoryById(id);
-    }
-    
-    
-     // Supprimer un événement
-    public boolean handleDeleteCat(EventCtegory event) {
-      try {
-          return eventDAO.deleteCategory(event.getId());
-      } catch (SQLException e) {
-           Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Erreur");
-                alert.setHeaderText("Échec de l'opération");
-                alert.setContentText("Erreur lors de la suppression :\n" + e.getMessage());
-                alert.show();
-          return false;
-      }
-  }
 
-   
+     public List<String> getAllEventTitles() {
+    return eventDAO.getAllEventTitles(); // Récupère tous les titres des événements
+}
+
      public List<AbstractEvent> handleSearchEvents(String keyword) {
         return eventDAO.searchEvents(keyword);
     }
@@ -175,7 +60,7 @@ public class EventController {
         return eventDAO.searchEvents(keyword);
     }
     // Supprimer un événement
-    public void handleDeleteEvent(AbstractEvent event) throws SQLException {
+    public void handleDeleteEvent(AbstractEvent event) throws EventException {
         
         eventDAO.deleteEvent(event.getId()); // Supprimer dans la base
         
@@ -307,6 +192,135 @@ public class EventController {
         
     }
     
+    public void checkEventConflict(AbstractEvent newEvent) throws EventException {
+        eventDAO.checkEventConflict(newEvent);
+    }
+    
+        public void addNotification(Notification notification) throws SQLException {
+        notificationDAO.addNotification(notification);
+    }
+
+    public List<Notification> getAllNotifications() throws SQLException {
+        return notificationDAO.getAllNotifications();
+    } 
+    
+    public  List<String> getLastNotifications() throws SQLException{
+        return notificationDAO.getLastNotifications();
+    }
+
+    
+    public void handleAddCategory(EventCtegory category) {
+    try {
+        eventDAO.addCategory(category);
+         
+    } catch (SQLException e) {
+    }  
+            
+}  
+    public void handleUpdateCategory(EventCtegory category) {
+    try {
+        eventDAO.updateCategory(category);
+         
+    } catch (SQLException e) {
+    }  
+            
+}
+    
+    public List<EventCtegory> getAllCategories() throws SQLException  {
+        return eventDAO.getAllCategories();
+    }
+    
+    public String getCategoryColor(int id)  throws SQLException 
+    {
+        return eventDAO.getCategoryColor(id);
+    }
+    
+    public String getCategoryName(int id) throws SQLException 
+    {
+        return eventDAO.getCategoryById(id);
+    }
+    
+    
+     // Supprimer un événement
+    public boolean handleDeleteCat(EventCtegory event) {
+      try {
+          return eventDAO.deleteCategory(event.getId());
+      } catch (SQLException e) {
+           Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Erreur");
+                alert.setHeaderText("Échec de l'opération");
+                alert.setContentText("Erreur lors de la suppression :\n" + e.getMessage());
+                alert.show();
+          return false;
+      }
+  } 
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+     public List<Reservation> getAllReservations() throws SQLException{
+         return reservationDAO.getAllReservations();
+     }
+     
+     public void addReservation(Reservation reservation) throws SQLException 
+     {
+         reservationDAO.addReservation(reservation);
+     }
+     
+     public void updateReservation(Reservation reservation) throws SQLException 
+     {
+         reservationDAO.updateReservation(reservation);
+     }
+     public void deleteReservation(int reservationId) throws SQLException
+     {
+         reservationDAO.deleteReservation(reservationId);
+     }
+     
+     public List<Reservation> getReservationsByClientId(int clientId)
+     {
+         return reservationDAO.getReservationsByClientId(clientId);
+     }
+     
+    public List<String> getAllClientNames() {
+        return ClientDAO.getAllClientNames(); // Récupère tous les noms des clients
+    }
+    
+    public String getClientNameById(int idclient)
+    {
+        return ClientDAO.getClientNameById(idclient);
+    } 
+    
+    public boolean  addClient(String fullName, String email) throws Exception
+    {
+    try {
+             ClientDAO.addClient(fullName, email);
+             return true ;
+         } catch (SQLException e) {
+          System.err.println("Erreur SQL : " + e.getMessage());
+          return false;
+    }
+        
+    }
+    
+    public String getEventTitle(int id)
+    {
+        return eventDAO.getEventTitle(id);
+    }
+
+    public int getEventIdByTitle(String title) {
+        return eventDAO.getEventIdByTitle(title);
+    }
+
+    public int getClientIdByName(String name) {
+        return ClientDAO.getClientIdByName(name);
+    }
+
   
     
 

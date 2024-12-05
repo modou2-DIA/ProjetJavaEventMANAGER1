@@ -4,6 +4,8 @@ import Controller.Event.EventController;
 import Modele.Reservations.Reservation;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -58,34 +60,39 @@ public class AjouterReservationView {
         }
 
         Button saveButton = new Button((reservation == null) ? "Ajouter" : "Modifier");
-        saveButton.setOnAction(e -> {
-            try {
-                if (eventComboBox.getValue() == null || clientComboBox.getValue() == null || isConfirmedComboBox.getValue() == null) {
-                    showAlert(Alert.AlertType.ERROR, "Erreur", "Veuillez remplir tous les champs.");
-                    return;
+        saveButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                try {
+                    if (eventComboBox.getValue() == null || clientComboBox.getValue() == null || isConfirmedComboBox.getValue() == null) {
+                        showAlert(Alert.AlertType.ERROR, "Erreur", "Veuillez remplir tous les champs.");
+                        return;
+                    }
+                    
+                    int eventId = controller.getEventIdByTitle(eventComboBox.getValue());
+                    int clientId = controller.getClientIdByName(clientComboBox.getValue());
+                    int isConfirmed = isConfirmedComboBox.getValue().equals("Oui") ? 1 : 0;
+                    
+                    if (reservation == null) {
+                        reservation.setId_event(eventId);
+                        reservation.setId_client(clientId);
+                        
+                        reservation.setIsConfirmed(isConfirmed);
+                        controller.addReservation(reservation);
+                        showAlert(Alert.AlertType.INFORMATION, "Succès", "Réservation ajoutée avec succès !");
+                    } else {
+                        reservation.setId_event(eventId);
+                        reservation.setId_client(clientId);
+                        reservation.setIsConfirmed(isConfirmed);
+                        controller.updateReservation(reservation);
+                        showAlert(Alert.AlertType.INFORMATION, "Succès", "Réservation modifiée avec succès !");
+                    }
+                    
+                    new GestionReservationsView(stage, controller).show();
+                    
+                } catch (Exception ex) {
+                    showAlert(Alert.AlertType.ERROR, "Erreur", "Une erreur est survenue : " + ex.getMessage());
                 }
-
-                int eventId = controller.getEventIdByTitle(eventComboBox.getValue());
-                int clientId = controller.getClientIdByName(clientComboBox.getValue());
-                int isConfirmed = isConfirmedComboBox.getValue().equals("Oui") ? 1 : 0;
-
-                if (reservation == null) {
-                    Reservation newReservation = new Reservation(0, eventId, clientId);
-                    newReservation.setIsConfirmed(isConfirmed);
-                    controller.addReservation(newReservation);
-                    showAlert(Alert.AlertType.INFORMATION, "Succès", "Réservation ajoutée avec succès !");
-                } else {
-                    reservation.setId_event(eventId);
-                    reservation.setId_client(clientId);
-                    reservation.setIsConfirmed(isConfirmed);
-                    controller.updateReservation(reservation);
-                    showAlert(Alert.AlertType.INFORMATION, "Succès", "Réservation modifiée avec succès !");
-                }
-
-                new GestionReservationsView(stage, controller).show();
-
-            } catch (Exception ex) {
-                showAlert(Alert.AlertType.ERROR, "Erreur", "Une erreur est survenue : " + ex.getMessage());
             }
         });
 

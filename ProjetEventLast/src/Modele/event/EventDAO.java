@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package Modele.Event;
 
 
@@ -58,7 +55,7 @@ public class EventDAO {
 
 
     // Charger les événements depuis la base de données
-    private void loadEventsFromDatabase() {
+    private void loadEventsFromDatabase()  {
         String sql = "SELECT * FROM events";
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(sql)) {
@@ -111,7 +108,9 @@ public class EventDAO {
             }
         } catch (SQLException e) {
             System.err.println("Erreur lors du chargement des événements : " + e.getMessage());
-        }
+        }  
+         
+       
     }
     
    public String getEventTitle(int idevent) {
@@ -197,20 +196,41 @@ public class EventDAO {
     }
 
     // Supprimer un événement
-    public void deleteEvent(int eventId) throws SQLException {
+    public void deleteEvent(int eventId) throws EventException {
+        
+        if (!eventExists(eventId)) {
+        throw new EventException("L'événement avec l'ID " + eventId + " n'existe pas.");
+    }
+    try {
         String sql = "DELETE FROM events WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, eventId);
             statement.executeUpdate();
-
-            // Supprimer de la liste locale
+            
+            
+             // Supprimer de la liste locale
             events = events.stream()
                     .filter(e -> e.getId() != eventId)
                     .collect(Collectors.toList());
         }
-         
+    } catch (SQLException e) {
+        throw new EventException("Erreur lors de la suppression de l'événement : " + e.getMessage());
+    }
+                  
     }
 
+    
+    
+    private boolean eventExists(int eventId) {
+        String sql = "SELECT 1 FROM events WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, eventId);
+            ResultSet resultSet = statement.executeQuery();
+            return resultSet.next();
+        } catch (SQLException e) {
+            return false;
+        }
+    }
     // Rechercher des événements par mot-clé
     public List<AbstractEvent> searchEvents(String keyword) {
         if(keyword ==null)
@@ -233,12 +253,7 @@ public class EventDAO {
                 .collect(Collectors.toList());
     }
 
-    // Enregistrer les modifications locales dans la base de données
-    public void saveAllEvents() throws SQLException {
-        for (AbstractEvent event : events) {
-            updateEvent(event); // Met à jour chaque événement dans la base
-        }
-    }
+     
     
     // Récupère tous les titres des événements
     public List<String> getAllEventTitles() {
@@ -274,6 +289,21 @@ public class EventDAO {
         
         return -1; // Retourne -1 si l'événement n'est pas trouvé
     }
+    
+    //Si deux événements se chevauchent dans le temps , on lance une exception
+    public void checkEventConflict(AbstractEvent newEvent) throws EventException {
+    String sql = "SELECT * FROM events WHERE date_event = ?";
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        statement.setTimestamp(1, Timestamp.valueOf(newEvent.getDate()));
+        ResultSet resultSet = statement.executeQuery();
+        if (resultSet.next()) {
+            throw new EventException("Un autre événement est déjà prévu à cette date.");
+        }
+    } catch (SQLException e) {
+        throw new EventException("Erreur lors de la vérification des conflits : " + e.getMessage());
+    }
+}
+
 
     // Ajouter une catégorie
     public void addCategory(EventCtegory category) throws SQLException {
@@ -312,6 +342,24 @@ public class EventDAO {
         }
         return categories;
     }
+    
+      public   String getCategoryColor(int id)     {
+        String query = "SELECT color_code FROM categories WHERE id= ?";
+        
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, id);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString("color_code");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return ""; // Retourne -1 si l'événement n'est pas trouvé
+    }
+    
     
     // Récupérer une catégorie par nom
 public int getCategoryByName(String categoryName) throws SQLException {
@@ -368,12 +416,6 @@ public String getCategoryById(int id) throws SQLException {
         return rowsAffected > 0; // Retourne true si une ligne a été supprimée
     }
 }
-
-    
-    
-     
-
-
-    
+   
 }
 
