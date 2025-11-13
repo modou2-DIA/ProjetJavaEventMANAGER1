@@ -45,19 +45,4 @@ src/
  ├── DAO/
  └── Vue/     <-- JavaFX UI (Gestion événements, réservations, menu…)
 
----
-## 🖥️ Aperçus de l’application
-
-### 🔹 Page d’accueil
-<img src="home.png" width="700"/>
-![Home](home.png)
-
-### 🔹 Gestion des événements
-![Events](events.png)
-
-### 🔹 Fenêtre d’ajout d’événement
-![Add Event](add_event.png)
-
-### 🔹 Gestion des réservations
-![Reservations](reservations.png)
 
